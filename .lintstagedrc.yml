@@ -1,0 +1,9 @@
+'*.ts{,x}':
+  - eslint --fix
+  - tsc-files --noEmit src/global.d.ts
+
+'*.scss':
+  - stylelint --fix
+
+'*.{html,json,yml,md}':
+  - prettier --write
