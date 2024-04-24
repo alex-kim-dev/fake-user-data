@@ -1,1 +1,9 @@
-@import 'bootstrap/scss/bootstrap';
+@import '../node_modules/bootstrap/scss/bootstrap';
+
+.errors {
+  flex-basis: 12ch;
+}
+
+.seed {
+  flex-basis: 12ch !important;
+}
