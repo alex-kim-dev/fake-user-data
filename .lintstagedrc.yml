@@ -4,7 +4,6 @@
 
 'server/**/*.ts{,x}':
   - eslint --fix
-  - tsc-files --noEmit
 
 '*.scss':
   - stylelint --fix

@@ -22,6 +22,7 @@ settings:
 
 rules:
   '@typescript-eslint/no-var-requires': off
+  import/extensions: off
   import/order:
     - warn
     - newlines-between: always

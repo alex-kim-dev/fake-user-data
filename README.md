@@ -22,6 +22,6 @@ A client-server web app that generates user data with mistakes based on a given 
   - [ ] add a random character at a random position
   - [ ] swap adjacent characters
   - [ ] noisy user data shouldn't be too long or too short
-- [ ] generate data on a server
-- [ ] avoid full user data duplication in ~10_000_000 records
+- [x] generate data on a server
+- [x] avoid full user data duplication in ~10_000_000 records
 - [ ] optional: add "Export to CSV" button (generate the number of pages which is displayed to a user currently)
