@@ -1,7 +1,7 @@
 import { Faker, allLocales } from '@faker-js/faker';
 import { random } from 'underscore';
 
-import { Locale, Seed } from '../types';
+import { Locale, Seed, User } from '../types';
 
 const address: Record<Locale, ((loc: Faker['location']) => string)[]> = {
   [Locale.en]: [
@@ -96,7 +96,7 @@ export class FakeUserGenerator {
     this.locale = locale;
   }
 
-  generate(amount = 20) {
+  generate(amount = 20): User[] {
     return Array.from({ length: amount }).map((_, i) => {
       return {
         index: i + 1,

@@ -1,8 +1,4 @@
-'client/**/*.ts{,x}':
-  - eslint --fix
-  - tsc-files --noEmit client/global.d.ts
-
-'server/**/*.ts{,x}':
+'/*.ts{,x}':
   - eslint --fix
 
 '*.scss':

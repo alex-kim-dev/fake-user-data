@@ -11,12 +11,12 @@ A client-server web app that generates user data with mistakes based on a given 
     - [ ] must be a combination of user seed and a page number to skip generating previous pages
 - [ ] if the user changes anything, the table below automatically updates (20 records are generated again)
 - [ ] infinite scrolling +10 records
-- [ ] the table
-  - [ ] index (1, 2, 3, ...) - no errors
-  - [ ] random id - no errors
-  - [ ] first, middle, last names (in the region format)
-  - [ ] address (in several possible formats)
-  - [ ] phone (several formats)
+- [x] the table
+  - [x] index (1, 2, 3, ...) - no errors
+  - [x] random id - no errors
+  - [x] first, middle, last names (in the region format)
+  - [x] address (in several possible formats)
+  - [x] phone (several formats)
 - [ ] support 3 types of errors, chosen randomly
   - [ ] delete character at a random position
   - [ ] add a random character at a random position

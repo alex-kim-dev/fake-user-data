@@ -1,8 +1,9 @@
 import express, { type Request } from 'express';
 import dotenv from 'dotenv';
 import { random } from 'underscore';
+import cors from 'cors';
 
-import { Locale } from './types';
+import { Locale, Query, ResponseBody } from './types';
 import { FakeUserGenerator } from './lib/FakeUserGenerator';
 
 const DEFAULT_LOCALE = Locale.en;
@@ -14,26 +15,15 @@ const MAX_ERRORS = 10_000;
 const USERS_PER_PAGE = 20;
 
 dotenv.config({ path: '.env.local' });
-const port = process.env.PORT;
+const { PORT, CLIENT_URL } = process.env;
+
+const corsOptions = {
+  origin: CLIENT_URL,
+};
+
 const app = express();
 
-interface RequestParams {}
-interface ResponseBody {
-  query: {
-    locale: Locale;
-    errors: number;
-    seed: number;
-  };
-  data: ReturnType<FakeUserGenerator['generate']>;
-}
-interface RequestBody {}
-interface RequestQuery {
-  lang?: Locale;
-  errors?: string;
-  seed?: string;
-}
-
-const parseQuery = (query: RequestQuery) => {
+const parseQuery = (query) => {
   const locale = Object.values(Locale).some((loc) => loc === query.lang)
     ? query.lang
     : DEFAULT_LOCALE;
@@ -53,17 +43,15 @@ const parseQuery = (query: RequestQuery) => {
 
 app.get(
   '/',
-  (
-    req: Request<RequestParams, ResponseBody, RequestBody, RequestQuery>,
-    res,
-  ) => {
+  cors(corsOptions),
+  (req: Request<object, ResponseBody, object, Query>, res) => {
     const { locale, errors, seed } = parseQuery(req.query);
-    const data = new FakeUserGenerator(locale, seed).generate(USERS_PER_PAGE);
+    const users = new FakeUserGenerator(locale, seed).generate(USERS_PER_PAGE);
 
-    res.send({ query: { locale, errors, seed }, data });
+    res.send({ query: { locale, errors, seed }, users });
   },
 );
 
-app.listen(port, () => {
-  console.log(`Express app is listening at port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Express app is listening at port ${PORT}`);
 });
