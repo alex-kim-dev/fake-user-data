@@ -1,7 +1,8 @@
 import { Faker, allLocales } from '@faker-js/faker';
 import { random } from 'underscore';
 
-import { Locale, Seed, User } from '../types';
+import { Seed, User } from '../../shared/types';
+import { Locale } from '../../shared/constants';
 
 const address: Record<Locale, ((loc: Faker['location']) => string)[]> = {
   [Locale.en]: [

@@ -1,6 +1,6 @@
 import axiosLib from 'axios';
 
-import { ResponseBody } from '../server/types';
+import { ResponseBody } from '../shared/types';
 
 const axios = axiosLib.create({
   baseURL: import.meta.env.VITE_API_URL,

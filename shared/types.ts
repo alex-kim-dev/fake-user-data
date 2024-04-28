@@ -1,10 +1,4 @@
-/* eslint-disable no-shadow */
-
-export enum Locale {
-  en = 'en',
-  es = 'es',
-  fr = 'fr',
-}
+import { Locale } from './constants';
 
 export type Seed = number;
 export type UUID = string;

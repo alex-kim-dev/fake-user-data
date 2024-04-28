@@ -32,6 +32,7 @@ rules:
         - '*.ts'
   import/prefer-default-export: off
   no-console: off
+  no-shadow: off
 
 overrides:
   - files: ['client']

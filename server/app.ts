@@ -3,16 +3,19 @@ import dotenv from 'dotenv';
 import { random } from 'underscore';
 import cors from 'cors';
 
-import { Locale, Query, ResponseBody } from './types';
-import { FakeUserGenerator } from './lib/FakeUserGenerator';
+import { Query, ResponseBody } from '../shared/types';
+import {
+  Locale,
+  DEFAULT_ERRORS,
+  DEFAULT_LOCALE,
+  MAX_ERRORS,
+  MAX_SEED,
+  MIN_ERRORS,
+  MIN_SEED,
+  USERS_PER_PAGE,
+} from '../shared/constants';
 
-const DEFAULT_LOCALE = Locale.en;
-const MIN_SEED = 0;
-const MAX_SEED = 9_999_999;
-const DEFAULT_ERRORS = 0;
-const MIN_ERRORS = 0;
-const MAX_ERRORS = 10_000;
-const USERS_PER_PAGE = 20;
+import { FakeUserGenerator } from './lib/FakeUserGenerator';
 
 dotenv.config({ path: '.env.local' });
 const { PORT, CLIENT_URL } = process.env;

@@ -1,16 +1,50 @@
-import { useEffect, useState } from 'react';
+import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
 import { Shuffle } from 'react-bootstrap-icons';
 import { CanceledError } from 'axios';
+import { random } from 'underscore';
 
-import type { User } from '../server/types';
+import { User } from '../shared/types';
+import {
+  DEFAULT_ERRORS,
+  DEFAULT_LOCALE,
+  Locale,
+  MAX_ERRORS,
+  MAX_SEED,
+  MIN_ERRORS,
+  MIN_SEED,
+} from '../shared/constants';
 
 import { UsersTable } from './components/UsersTable';
 import { api } from './api';
+
+const MAX_ERRORS_RANGE = 10;
+const STEP_ERRORS_RANGE = 0.25;
+const STEP_ERRORS = 1;
+const STEP_SEED = 1;
+
+const errorsFormatter = new Intl.NumberFormat('en', {
+  maximumFractionDigits: 2,
+  roundingMode: 'trunc',
+  useGrouping: false,
+} as Intl.NumberFormatOptions);
+
+const seedFormatter = new Intl.NumberFormat('en', {
+  maximumFractionDigits: 0,
+  roundingMode: 'trunc',
+  useGrouping: false,
+} as Intl.NumberFormatOptions);
 
 export const App: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+
+  const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
+  const [numOfErrors, setNumOfErrors] = useState(String(DEFAULT_ERRORS));
+  const [seed, setSeed] = useState(String(random(MAX_SEED)));
+
+  const errorsInputRef = useRef<HTMLInputElement>(null);
+  const seedInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -34,6 +68,26 @@ export const App: React.FC = () => {
     };
   }, []);
 
+  const handleRegionChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
+    setLocale(Locale[event.currentTarget.value as Locale]);
+  };
+
+  const handleErrorsChange: ChangeEventHandler<HTMLInputElement> = ({
+    currentTarget: { value },
+  }) => {
+    const parsed = parseFloat(value) || MIN_ERRORS;
+    if (parsed < MIN_ERRORS || parsed > MAX_ERRORS) return;
+    setNumOfErrors(errorsFormatter.format(parsed));
+  };
+
+  const handleSeedChange: ChangeEventHandler<HTMLInputElement> = ({
+    currentTarget: { value },
+  }) => {
+    const parsed = parseInt(value, 10) || MIN_SEED;
+    if (parsed < MIN_SEED || parsed > MAX_SEED) return;
+    setSeed(seedFormatter.format(parsed));
+  };
+
   return (
     <>
       <header className='navbar bg-light mb-4'>
@@ -47,11 +101,14 @@ export const App: React.FC = () => {
               <label className='col-form-label' htmlFor='region'>
                 Region:
               </label>
-              <select className='form-select' id='region'>
-                <option selected>Default region</option>
-                <option value='USA'>USA</option>
-                <option value='UK'>UK</option>
-                <option value='Australia'>Australia</option>
+              <select
+                className='form-select'
+                value={locale}
+                onChange={handleRegionChange}
+                id='region'>
+                <option value={Locale.en}>USA</option>
+                <option value={Locale.es}>Spain</option>
+                <option value={Locale.fr}>France</option>
               </select>
             </div>
 
@@ -62,10 +119,12 @@ export const App: React.FC = () => {
               <input
                 className='form-range'
                 id='errors-range'
-                max={10}
-                min={0}
-                step={0.25}
+                max={MAX_ERRORS_RANGE}
+                min={MIN_ERRORS}
+                step={STEP_ERRORS_RANGE}
                 type='range'
+                value={numOfErrors}
+                onChange={handleErrorsChange}
               />
               <label className='visually-hidden' htmlFor='errors'>
                 Errors:
@@ -73,10 +132,13 @@ export const App: React.FC = () => {
               <input
                 className='form-control errors flex-shrink-0'
                 id='errors'
-                max={10000}
-                min={0}
-                step={1}
+                max={MAX_ERRORS}
+                min={MIN_ERRORS}
+                step={STEP_ERRORS}
                 type='number'
+                ref={errorsInputRef}
+                value={numOfErrors}
+                onChange={handleErrorsChange}
               />
             </div>
 
@@ -88,10 +150,13 @@ export const App: React.FC = () => {
                 <input
                   className='form-control seed'
                   id='seed'
-                  max={9999999}
-                  min={0}
-                  step={1}
+                  max={MAX_SEED}
+                  min={MIN_SEED}
+                  ref={seedInputRef}
+                  step={STEP_SEED}
                   type='number'
+                  value={seed}
+                  onChange={handleSeedChange}
                 />
                 <button
                   aria-label='shuffle seed'
