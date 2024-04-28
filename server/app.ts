@@ -26,9 +26,9 @@ const corsOptions = {
 
 const app = express();
 
-const parseQuery = (query) => {
-  const locale = Object.values(Locale).some((loc) => loc === query.lang)
-    ? query.lang
+const parseQuery = (query: Query) => {
+  const locale = Object.values(Locale).some((loc) => loc === query.locale)
+    ? query.locale
     : DEFAULT_LOCALE;
 
   const errors = Math.min(
@@ -51,7 +51,10 @@ app.get(
     const { locale, errors, seed } = parseQuery(req.query);
     const users = new FakeUserGenerator(locale, seed).generate(USERS_PER_PAGE);
 
-    res.send({ query: { locale, errors, seed }, users });
+    res.send({
+      query: { locale, errors: String(errors), seed: String(seed) },
+      users,
+    });
   },
 );
 

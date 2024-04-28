@@ -1,9 +1,15 @@
-import { ChangeEventHandler, useEffect, useRef, useState } from 'react';
+import {
+  ChangeEventHandler,
+  MouseEventHandler,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { Shuffle } from 'react-bootstrap-icons';
 import { CanceledError } from 'axios';
-import { random } from 'underscore';
+import { debounce, random } from 'underscore';
 
-import { User } from '../shared/types';
+import { Query, User } from '../shared/types';
 import {
   DEFAULT_ERRORS,
   DEFAULT_LOCALE,
@@ -21,6 +27,7 @@ const MAX_ERRORS_RANGE = 10;
 const STEP_ERRORS_RANGE = 0.25;
 const STEP_ERRORS = 1;
 const STEP_SEED = 1;
+const DEBOUNCE_DELAY = 1000;
 
 const errorsFormatter = new Intl.NumberFormat('en', {
   maximumFractionDigits: 2,
@@ -36,40 +43,46 @@ const seedFormatter = new Intl.NumberFormat('en', {
 
 export const App: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
   const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
-  const [numOfErrors, setNumOfErrors] = useState(String(DEFAULT_ERRORS));
+  const [errors, setErrors] = useState(String(DEFAULT_ERRORS));
   const [seed, setSeed] = useState(String(random(MAX_SEED)));
 
-  const errorsInputRef = useRef<HTMLInputElement>(null);
-  const seedInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
+  const requestFakeUsers = async (query: Query) => {
     setLoading(true);
     setError(null);
 
-    api
-      .getFakeUsers()
-      .then(({ data }) => {
-        setUsers(data.users);
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (err instanceof CanceledError) return;
-        setError(err);
-        setLoading(false);
-      });
+    try {
+      const { data } = await api.getFakeUsers(query);
+      setUsers(data.users);
+      setLoading(false);
+    } catch (err) {
+      if (!(err instanceof Error) || err instanceof CanceledError) return;
+      setError(err);
+      setLoading(false);
+    }
+  };
+
+  const debouncedRequest = useMemo(
+    () => debounce(requestFakeUsers, DEBOUNCE_DELAY, false),
+    [],
+  );
+
+  useEffect(() => {
+    requestFakeUsers({ locale, errors, seed });
 
     return () => {
       api.controllers.getFakeUsers?.abort();
-      setLoading(false);
+      debouncedRequest.cancel();
     };
   }, []);
 
   const handleRegionChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
-    setLocale(Locale[event.currentTarget.value as Locale]);
+    const newLocale = Locale[event.currentTarget.value as Locale];
+    setLocale(newLocale);
+    debouncedRequest({ locale: newLocale, errors, seed });
   };
 
   const handleErrorsChange: ChangeEventHandler<HTMLInputElement> = ({
@@ -77,7 +90,10 @@ export const App: React.FC = () => {
   }) => {
     const parsed = parseFloat(value) || MIN_ERRORS;
     if (parsed < MIN_ERRORS || parsed > MAX_ERRORS) return;
-    setNumOfErrors(errorsFormatter.format(parsed));
+    const newErrors = errorsFormatter.format(parsed);
+
+    setErrors(newErrors);
+    debouncedRequest({ locale, errors: newErrors, seed });
   };
 
   const handleSeedChange: ChangeEventHandler<HTMLInputElement> = ({
@@ -85,7 +101,16 @@ export const App: React.FC = () => {
   }) => {
     const parsed = parseInt(value, 10) || MIN_SEED;
     if (parsed < MIN_SEED || parsed > MAX_SEED) return;
-    setSeed(seedFormatter.format(parsed));
+    const newSeed = seedFormatter.format(parsed);
+
+    setSeed(newSeed);
+    debouncedRequest({ locale, errors, seed: newSeed });
+  };
+
+  const handleShuffleSeed: MouseEventHandler<HTMLButtonElement> = () => {
+    const newSeed = String(random(MAX_SEED));
+    setSeed(newSeed);
+    debouncedRequest({ locale, errors, seed: newSeed });
   };
 
   return (
@@ -123,7 +148,7 @@ export const App: React.FC = () => {
                 min={MIN_ERRORS}
                 step={STEP_ERRORS_RANGE}
                 type='range'
-                value={numOfErrors}
+                value={errors}
                 onChange={handleErrorsChange}
               />
               <label className='visually-hidden' htmlFor='errors'>
@@ -136,8 +161,7 @@ export const App: React.FC = () => {
                 min={MIN_ERRORS}
                 step={STEP_ERRORS}
                 type='number'
-                ref={errorsInputRef}
-                value={numOfErrors}
+                value={errors}
                 onChange={handleErrorsChange}
               />
             </div>
@@ -152,7 +176,6 @@ export const App: React.FC = () => {
                   id='seed'
                   max={MAX_SEED}
                   min={MIN_SEED}
-                  ref={seedInputRef}
                   step={STEP_SEED}
                   type='number'
                   value={seed}
@@ -161,7 +184,8 @@ export const App: React.FC = () => {
                 <button
                   aria-label='shuffle seed'
                   className='btn btn-outline-secondary d-flex align-items-center'
-                  type='button'>
+                  type='button'
+                  onClick={handleShuffleSeed}>
                   <Shuffle height={20} width={20} aria-hidden />
                 </button>
               </div>
@@ -187,7 +211,7 @@ export const App: React.FC = () => {
               Couldn't load users, please try again.
             </div>
           )}
-          {loading && (
+          {isLoading && (
             <div className='spinner-grow mb-3' role='status'>
               <span className='visually-hidden'>Loading...</span>
             </div>

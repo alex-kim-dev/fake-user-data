@@ -13,8 +13,8 @@ export interface User {
 
 export interface Query {
   locale: Locale;
-  errors: number;
-  seed: number;
+  errors: string;
+  seed: string;
 }
 
 export interface ResponseBody {
