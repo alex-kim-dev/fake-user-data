@@ -20,6 +20,7 @@ import {
   MIN_SEED,
 } from '../shared/constants';
 
+import { parse } from './utils.ts';
 import { UsersTable } from './components/UsersTable';
 import { api } from './api';
 
@@ -29,26 +30,27 @@ const STEP_ERRORS = 1;
 const STEP_SEED = 1;
 const DEBOUNCE_DELAY = 1000;
 
-const errorsFormatter = new Intl.NumberFormat('en', {
-  maximumFractionDigits: 2,
-  roundingMode: 'trunc',
-  useGrouping: false,
-} as Intl.NumberFormatOptions);
+const initializeState = (): Query => {
+  const params = new URL(window.location.href).searchParams;
+  return {
+    locale: parse.locale(params.get('locale') ?? '') ?? DEFAULT_LOCALE,
+    errors: parse.errors(params.get('errors') ?? '') ?? String(DEFAULT_ERRORS),
+    seed: parse.seed(params.get('seed') ?? '') ?? String(random(MAX_SEED)),
+  };
+};
 
-const seedFormatter = new Intl.NumberFormat('en', {
-  maximumFractionDigits: 0,
-  roundingMode: 'trunc',
-  useGrouping: false,
-} as Intl.NumberFormatOptions);
+const setSearchParams = (query: Query) => {
+  const url = new URL(window.location.href);
+  url.search = new URLSearchParams({ ...query }).toString();
+  window.history.replaceState(null, '', url);
+};
 
 export const App: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
-  const [errors, setErrors] = useState(String(DEFAULT_ERRORS));
-  const [seed, setSeed] = useState(String(random(MAX_SEED)));
+  const [query, setQuery] = useState(initializeState);
 
   const requestFakeUsers = async (query: Query) => {
     setLoading(true);
@@ -58,6 +60,7 @@ export const App: React.FC = () => {
       const { data } = await api.getFakeUsers(query);
       setUsers(data.users);
       setLoading(false);
+      setSearchParams(data.query);
     } catch (err) {
       if (!(err instanceof Error) || err instanceof CanceledError) return;
       setError(err);
@@ -71,7 +74,7 @@ export const App: React.FC = () => {
   );
 
   useEffect(() => {
-    requestFakeUsers({ locale, errors, seed });
+    requestFakeUsers(query);
 
     return () => {
       api.controllers.getFakeUsers?.abort();
@@ -79,38 +82,37 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  const handleRegionChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
+  const handleLocaleChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
     const newLocale = Locale[event.currentTarget.value as Locale];
-    setLocale(newLocale);
-    debouncedRequest({ locale: newLocale, errors, seed });
+    const newQuery = { ...query, locale: newLocale };
+    setQuery(newQuery);
+    debouncedRequest(newQuery);
   };
 
   const handleErrorsChange: ChangeEventHandler<HTMLInputElement> = ({
     currentTarget: { value },
   }) => {
-    const parsed = parseFloat(value) || MIN_ERRORS;
-    if (parsed < MIN_ERRORS || parsed > MAX_ERRORS) return;
-    const newErrors = errorsFormatter.format(parsed);
-
-    setErrors(newErrors);
-    debouncedRequest({ locale, errors: newErrors, seed });
+    const newErrors = value === '' ? '0' : parse.errors(value);
+    if (newErrors === null) return;
+    const newQuery = { ...query, errors: newErrors };
+    setQuery(newQuery);
+    debouncedRequest(newQuery);
   };
 
   const handleSeedChange: ChangeEventHandler<HTMLInputElement> = ({
     currentTarget: { value },
   }) => {
-    const parsed = parseInt(value, 10) || MIN_SEED;
-    if (parsed < MIN_SEED || parsed > MAX_SEED) return;
-    const newSeed = seedFormatter.format(parsed);
-
-    setSeed(newSeed);
-    debouncedRequest({ locale, errors, seed: newSeed });
+    const newSeed = value === '' ? '0' : parse.seed(value);
+    if (newSeed === null) return;
+    const newQuery = { ...query, seed: newSeed };
+    setQuery(newQuery);
+    debouncedRequest(newQuery);
   };
 
-  const handleShuffleSeed: MouseEventHandler<HTMLButtonElement> = () => {
-    const newSeed = String(random(MAX_SEED));
-    setSeed(newSeed);
-    debouncedRequest({ locale, errors, seed: newSeed });
+  const handleSeedShuffle: MouseEventHandler<HTMLButtonElement> = () => {
+    const newQuery = { ...query, seed: String(random(MAX_SEED)) };
+    setQuery(newQuery);
+    debouncedRequest(newQuery);
   };
 
   return (
@@ -128,8 +130,8 @@ export const App: React.FC = () => {
               </label>
               <select
                 className='form-select'
-                value={locale}
-                onChange={handleRegionChange}
+                value={query.locale}
+                onChange={handleLocaleChange}
                 id='region'>
                 <option value={Locale.en}>USA</option>
                 <option value={Locale.es}>Spain</option>
@@ -148,7 +150,7 @@ export const App: React.FC = () => {
                 min={MIN_ERRORS}
                 step={STEP_ERRORS_RANGE}
                 type='range'
-                value={errors}
+                value={query.errors}
                 onChange={handleErrorsChange}
               />
               <label className='visually-hidden' htmlFor='errors'>
@@ -161,7 +163,7 @@ export const App: React.FC = () => {
                 min={MIN_ERRORS}
                 step={STEP_ERRORS}
                 type='number'
-                value={errors}
+                value={query.errors}
                 onChange={handleErrorsChange}
               />
             </div>
@@ -178,14 +180,14 @@ export const App: React.FC = () => {
                   min={MIN_SEED}
                   step={STEP_SEED}
                   type='number'
-                  value={seed}
+                  value={query.seed}
                   onChange={handleSeedChange}
                 />
                 <button
                   aria-label='shuffle seed'
                   className='btn btn-outline-secondary d-flex align-items-center'
                   type='button'
-                  onClick={handleShuffleSeed}>
+                  onClick={handleSeedShuffle}>
                   <Shuffle height={20} width={20} aria-hidden />
                 </button>
               </div>
