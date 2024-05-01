@@ -8,6 +8,7 @@ import {
 import { Shuffle } from 'react-bootstrap-icons';
 import { CanceledError } from 'axios';
 import { debounce, random } from 'underscore';
+import { InView } from 'react-intersection-observer';
 
 import { Query, User } from '../shared/types';
 import {
@@ -51,16 +52,19 @@ export const App: React.FC = () => {
   const [error, setError] = useState<Error | null>(null);
 
   const [query, setQuery] = useState(initializeState);
+  const [page, setPage] = useState(0);
 
-  const requestFakeUsers = async (query: Query) => {
+  const requestFakeUsers = async (query: Query, rewrite = true) => {
     setLoading(true);
     setError(null);
 
     try {
       const { data } = await api.getFakeUsers(query);
-      setUsers(data.users);
+      setUsers((prevUsers) =>
+        rewrite ? data.users : [...prevUsers, ...data.users],
+      );
+      if (rewrite) setSearchParams(data.query);
       setLoading(false);
-      setSearchParams(data.query);
     } catch (err) {
       if (!(err instanceof Error) || err instanceof CanceledError) return;
       setError(err);
@@ -113,6 +117,12 @@ export const App: React.FC = () => {
     const newQuery = { ...query, seed: String(random(MAX_SEED)) };
     setQuery(newQuery);
     debouncedRequest(newQuery);
+  };
+
+  const handleLoadMore = () => {
+    const nextSeed = String((Number(query.seed) + page + 1) % MAX_SEED);
+    requestFakeUsers({ ...query, seed: nextSeed }, false);
+    setPage((prevPage) => prevPage + 1);
   };
 
   return (
@@ -205,7 +215,15 @@ export const App: React.FC = () => {
       </header>
       <main className='container'>
         <div className='overflow-auto mb-3'>
-          {users.length > 0 && <UsersTable users={users} />}
+          {users.length > 0 && (
+            <>
+              <UsersTable users={users} />
+              <InView
+                as='div'
+                onChange={(inView) => inView && handleLoadMore()}
+              />
+            </>
+          )}
         </div>
         <div className='d-flex flex-column align-items-center'>
           {error && (

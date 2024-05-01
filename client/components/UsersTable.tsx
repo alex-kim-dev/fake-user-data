@@ -17,9 +17,9 @@ export const UsersTable: React.FC<UsersTableProps> = ({ users }) => {
         </tr>
       </thead>
       <tbody>
-        {users.map((user) => (
+        {users.map((user, i) => (
           <tr key={user.id}>
-            <th scope='row'>{user.index}</th>
+            <th scope='row'>{i + 1}</th>
             <td>{user.id}</td>
             <td>{user.fullName}</td>
             <td>{user.address}</td>

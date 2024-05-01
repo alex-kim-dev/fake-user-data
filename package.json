@@ -36,6 +36,7 @@
     "react": "18.2.0",
     "react-bootstrap-icons": "1.11.4",
     "react-dom": "18.2.0",
+    "react-intersection-observer": "9.10.1",
     "underscore": "1.13.6"
   },
   "devDependencies": {
