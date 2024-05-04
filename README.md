@@ -2,6 +2,8 @@
 
 A client-server web app that generates user data with mistakes based on a given seed.
 
+https://github.com/alex-kim-dev/fake-user-data/assets/45559664/8657ff71-3949-4098-ac14-21b4c53b3cb0
+
 ## Requirements
 
 - [x] key features
