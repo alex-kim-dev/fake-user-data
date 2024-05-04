@@ -1,34 +1,38 @@
 import { Faker, allLocales } from '@faker-js/faker';
-import { random } from 'underscore';
 
 import { Seed, User } from '../../shared/types';
 import { Locale } from '../../shared/constants';
 
-const address: Record<Locale, ((loc: Faker['location']) => string)[]> = {
+import { SeededRandom } from './SeededRandom';
+
+const address: Record<
+  Locale,
+  ((loc: Faker['location'], rng: SeededRandom) => string)[]
+> = {
   [Locale.en]: [
-    function standard(loc) {
+    function standard(loc, rng) {
       return [
         loc.streetAddress(false),
         loc.city(),
-        loc.state({ abbreviated: Boolean(random(1)) }),
+        loc.state({ abbreviated: Boolean(rng.int(1)) }),
         loc.zipCode(),
       ].join(', ');
     },
 
-    function apartmentOrSuite(loc) {
+    function apartmentOrSuite(loc, rng) {
       return [
         loc.streetAddress(true),
         loc.city(),
-        loc.state({ abbreviated: Boolean(random(1)) }),
+        loc.state({ abbreviated: Boolean(rng.int(1)) }),
         loc.zipCode(),
       ].join(', ');
     },
 
-    function POBox(loc) {
+    function POBox(loc, rng) {
       return [
-        `PO Box ${random(12000)}`,
+        `PO Box ${rng.int(12000)}`,
         loc.city(),
-        loc.state({ abbreviated: Boolean(random(1)) }),
+        loc.state({ abbreviated: Boolean(rng.int(1)) }),
         loc.zipCode(),
       ].join(', ');
     },
@@ -74,12 +78,12 @@ const address: Record<Locale, ((loc: Faker['location']) => string)[]> = {
       return [loc.streetAddress(true), loc.zipCode(), loc.city()].join(', ');
     },
 
-    function cedex(loc) {
+    function cedex(loc, rng) {
       return [
         loc.streetAddress(false),
         loc.zipCode(),
         loc.city(),
-        `CEDEX ${random(20)}`,
+        `CEDEX ${rng.int(20)}`,
       ].join(', ');
     },
   ],
@@ -88,13 +92,16 @@ const address: Record<Locale, ((loc: Faker['location']) => string)[]> = {
 export class FakeUserGenerator {
   private faker: Faker;
 
-  private locale: Locale;
+  private random: SeededRandom;
 
-  constructor(locale: Locale, seed: Seed) {
+  constructor(
+    private locale: Locale,
+    seed: Seed,
+  ) {
     const faker = new Faker({ locale: allLocales[locale] });
     faker.seed(seed);
     this.faker = faker;
-    this.locale = locale;
+    this.random = new SeededRandom(seed);
   }
 
   generate(amount = 20): User[] {
@@ -110,7 +117,7 @@ export class FakeUserGenerator {
   }
 
   generateAddress() {
-    const randomFormat = random(address[this.locale].length - 1);
-    return address[this.locale][randomFormat](this.faker.location);
+    const randomFormat = this.random.int(address[this.locale].length - 1);
+    return address[this.locale][randomFormat](this.faker.location, this.random);
   }
 }
