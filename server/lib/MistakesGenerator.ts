@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-import { Locale, letters } from '../../shared/constants';
+import { Locale, chars } from '../../shared/constants';
 import { Seed } from '../../shared/types';
 
 import { SeededRandom } from './SeededRandom';
@@ -29,24 +29,30 @@ export class MistakesGenerator {
     return `${str.slice(0, i)}${str.slice(i + 1)}`;
   }
 
-  private [Mistake.addChar](str: string) {
+  private [Mistake.addChar](str: string, type: 'text' | 'phone') {
     const i = this.random.int(str.length);
-    const j = this.random.int(letters[this.locale].length - 1);
-    const char = letters[this.locale][j];
+
+    const charSet = chars[this.locale][type];
+    const j = this.random.int(charSet.length - 1);
+    const char = charSet[j];
+
     return `${str.slice(0, i)}${char}${str.slice(i)}`;
   }
 
   private [Mistake.swapAdjacentChars](str: string) {
     if (str.length <= 1) return str;
+
     const i = this.random.int(str.length - 2);
     return `${str.slice(0, i)}${str[i + 1]}${str[i]}${str.slice(i + 2)}`;
   }
 
-  private addMistakeToRecord(record: string[]) {
-    const i = this.random.int(uniqueMistakes);
-    const j = this.random.int(record.length - 1);
+  private addMistakeToRecord<T extends {}>(record: T, keys: (keyof T)[]) {
+    const randomMistake = this.random.int(uniqueMistakes);
+    const randomKey = keys[this.random.int(keys.length - 1)];
+    const type = randomKey === 'phone' ? 'phone' : 'text';
+
     // eslint-disable-next-line no-param-reassign
-    record[j] = this[i](record[j]);
+    record[randomKey] = this[randomMistake](record[randomKey], type);
   }
 
   private repeat(fn: Function, times: number) {
@@ -61,10 +67,10 @@ export class MistakesGenerator {
     };
   }
 
-  add(strings: string[][], numOfMistakes: number) {
-    console.log(`n of mistakes in add() is ${numOfMistakes}`);
-    return strings.forEach((record) =>
-      this.repeat(this.addMistakeToRecord, numOfMistakes)(record),
+  add<T extends {}>(records: T[], keys: (keyof T)[], numOfMistakes: number) {
+    records.forEach((record) =>
+      this.repeat(this.addMistakeToRecord, numOfMistakes)(record, keys),
     );
+    return records;
   }
 }

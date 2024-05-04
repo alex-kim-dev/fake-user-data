@@ -51,18 +51,11 @@ app.get(
   (req: Request<object, ResponseBody, object, Query>, res) => {
     const { locale, errors, seed } = parseQuery(req.query);
     const users = new FakeUserGenerator(locale, seed).generate(USERS_PER_PAGE);
-    const strings = users.map((user) => [
-      user.fullName,
-      user.address,
-      user.phone,
-    ]);
-    new MistakesGenerator(locale, seed).add(strings, errors);
-    const usersWithMistakes = users.map((user, i) => ({
-      ...user,
-      fullName: strings[i][0],
-      address: strings[i][1],
-      phone: strings[i][2],
-    }));
+    const usersWithMistakes = new MistakesGenerator(locale, seed).add(
+      users,
+      ['fullName', 'address', 'phone'],
+      errors,
+    );
 
     res.send({
       query: { locale, errors: String(errors), seed: String(seed) },
