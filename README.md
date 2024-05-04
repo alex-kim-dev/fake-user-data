@@ -17,10 +17,10 @@ A client-server web app that generates user data with mistakes based on a given 
   - [x] first, middle, last names (in the region format)
   - [x] address (in several possible formats)
   - [x] phone (several formats)
-- [ ] support 3 types of errors, chosen randomly
-  - [ ] delete character at a random position
-  - [ ] add a random character at a random position
-  - [ ] swap adjacent characters
+- [x] support 3 types of errors, chosen randomly
+  - [x] delete character at a random position
+  - [x] add a random character at a random position
+  - [x] swap adjacent characters
   - [ ] noisy user data shouldn't be too long or too short
 - [x] generate data on a server
 - [x] avoid full user data duplication in ~10_000_000 records

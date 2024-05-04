@@ -16,6 +16,7 @@ import {
 } from '../shared/constants';
 
 import { FakeUserGenerator } from './lib/FakeUserGenerator';
+import { MistakesGenerator } from './lib/MistakesGenerator';
 
 dotenv.config({ path: '.env.local' });
 const { PORT, CLIENT_URL } = process.env;
@@ -50,10 +51,22 @@ app.get(
   (req: Request<object, ResponseBody, object, Query>, res) => {
     const { locale, errors, seed } = parseQuery(req.query);
     const users = new FakeUserGenerator(locale, seed).generate(USERS_PER_PAGE);
+    const strings = users.map((user) => [
+      user.fullName,
+      user.address,
+      user.phone,
+    ]);
+    new MistakesGenerator(locale, seed).add(strings, errors);
+    const usersWithMistakes = users.map((user, i) => ({
+      ...user,
+      fullName: strings[i][0],
+      address: strings[i][1],
+      phone: strings[i][2],
+    }));
 
     res.send({
       query: { locale, errors: String(errors), seed: String(seed) },
-      users,
+      users: usersWithMistakes,
     });
   },
 );

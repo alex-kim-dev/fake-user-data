@@ -4,6 +4,17 @@ export enum Locale {
   fr = 'fr',
 }
 
+const numbers = '0123456789';
+const en = 'abcdefghijklmnopqrstuvwxyz';
+const es = 'aábcdeéfghiíjklmnñoópqrstuúüvwxyz';
+const fr = 'abcdefghijklmnopqrstuvwxyzàèùéâêîôûëïüÿæœç';
+
+export const letters = {
+  [Locale.en]: `${en}${en.toLocaleUpperCase(Locale.en)}${numbers}`,
+  [Locale.es]: `${es}${es.toLocaleUpperCase(Locale.es)}${numbers}`,
+  [Locale.fr]: `${fr}${fr.toLocaleUpperCase(Locale.fr)}${numbers}`,
+};
+
 export const DEFAULT_LOCALE = Locale.en;
 export const MIN_SEED = 0;
 export const MAX_SEED = 9_999_999;
