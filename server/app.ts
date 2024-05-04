@@ -2,8 +2,9 @@ import express, { type Request } from 'express';
 import dotenv from 'dotenv';
 import { random } from 'underscore';
 import cors from 'cors';
+import { mkConfig, generateCsv, type CsvOutput } from 'export-to-csv';
 
-import { Query, ResponseBody } from '../shared/types';
+import { Query, ResponseBody, User } from '../shared/types';
 import {
   Locale,
   DEFAULT_ERRORS,
@@ -27,6 +28,8 @@ const { PORT, CLIENT_URL } = process.env;
 const corsOptions = {
   origin: CLIENT_URL,
 };
+
+const csvConfig = mkConfig({ useKeysAsHeaders: true });
 
 const app = express();
 
@@ -78,6 +81,33 @@ app.get(
       },
       users: usersWithMistakes,
     });
+  },
+);
+
+app.get(
+  '/export',
+  cors(corsOptions),
+  (req: Request<object, CsvOutput, object, Query>, res) => {
+    const { locale, errors, seed, page: lastPage } = parseQuery(req.query);
+    const users: User[] = [];
+
+    for (let page = 0; page <= lastPage; page += 1) {
+      const finalSeed = (seed + page) % MAX_SEED;
+      const cleanUsers = new FakeUserGenerator(locale, finalSeed).generate(
+        USERS_PER_PAGE,
+      );
+      const usersWithMistakes = new MistakesGenerator(locale, finalSeed).add(
+        cleanUsers,
+        ['fullName', 'address', 'phone'],
+        errors,
+      );
+      users.push(...usersWithMistakes);
+    }
+
+    const usersWithIndex = users.map((user, i) => ({ index: i + 1, ...user }));
+    const csv = generateCsv(csvConfig)(usersWithIndex);
+
+    res.type('text/csv').attachment('export.csv').send(csv);
   },
 );
 

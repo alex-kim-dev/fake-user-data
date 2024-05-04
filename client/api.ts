@@ -24,4 +24,20 @@ export const api = {
       signal: controller.signal,
     });
   },
+
+  exportToCSV(state: Partial<State>) {
+    const controller = new AbortController();
+    api.controllers.exportCSV = controller;
+
+    const queryString = new URLSearchParams({
+      ...state,
+      page: String(state.page),
+    });
+    const url = `/export${queryString.size === 0 ? '' : '?'}${queryString}`;
+
+    return axios.get<Blob>(url, {
+      signal: controller.signal,
+      responseType: 'blob',
+    });
+  },
 };

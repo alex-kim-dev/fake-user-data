@@ -30,6 +30,7 @@ import {
 import { parse } from './utils.ts';
 import { UsersTable } from './components/UsersTable';
 import { api } from './api';
+import { ExportButton } from './components/ExportButton.tsx';
 
 const initializeState = (): State => {
   const params = new URL(window.location.href).searchParams;
@@ -208,11 +209,7 @@ export const App: React.FC = () => {
             </div>
 
             <div className='col-auto col-sm-7 col-md-2 col-lg-2 col-xl-1 d-flex justify-content-end'>
-              <button
-                className='btn btn-outline-primary ms-sm-auto'
-                type='button'>
-                Export
-              </button>
+              <ExportButton state={state}>Export</ExportButton>
             </div>
           </div>
         </div>
