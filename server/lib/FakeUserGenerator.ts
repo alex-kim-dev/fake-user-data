@@ -105,15 +105,14 @@ export class FakeUserGenerator {
   }
 
   generate(amount = 20): User[] {
-    return Array.from({ length: amount }).map((_, i) => {
-      return {
-        index: i + 1,
+    return Array.from({ length: amount }).map(
+      (): User => ({
         id: this.faker.string.uuid(),
         fullName: this.faker.person.fullName(),
         address: this.generateAddress(),
         phone: this.faker.phone.number(),
-      };
-    });
+      }),
+    );
   }
 
   generateAddress() {
