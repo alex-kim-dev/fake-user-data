@@ -1,6 +1,6 @@
 import axiosLib from 'axios';
 
-import { Query, ResponseBody } from '../shared/types';
+import type { ResponseBody, State } from '../shared/types';
 
 const axios = axiosLib.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -10,11 +10,14 @@ const axios = axiosLib.create({
 export const api = {
   controllers: {} as Partial<Record<string, AbortController>>,
 
-  getFakeUsers(query: Partial<Query>) {
+  getFakeUsers(state: Partial<State>) {
     const controller = new AbortController();
     api.controllers.getFakeUsers = controller;
 
-    const queryString = new URLSearchParams({ ...query });
+    const queryString = new URLSearchParams({
+      ...state,
+      page: String(state.page),
+    });
     const url = `/${queryString.size === 0 ? '' : '?'}${queryString}`;
 
     return axios.get<ResponseBody>(url, {

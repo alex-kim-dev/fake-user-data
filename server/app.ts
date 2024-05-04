@@ -8,10 +8,13 @@ import {
   Locale,
   DEFAULT_ERRORS,
   DEFAULT_LOCALE,
-  MAX_ERRORS,
-  MAX_SEED,
+  DEFAULT_PAGE,
   MIN_ERRORS,
+  MAX_ERRORS,
   MIN_SEED,
+  MAX_SEED,
+  MIN_PAGE,
+  MAX_PAGE,
   USERS_PER_PAGE,
 } from '../shared/constants';
 
@@ -42,23 +45,37 @@ const parseQuery = (query: Query) => {
     MAX_SEED,
   );
 
-  return { locale, errors, seed };
+  const page = Math.min(
+    Math.max(parseInt(query.page, 10) || DEFAULT_PAGE, MIN_PAGE),
+    MAX_PAGE,
+  );
+
+  return { locale, errors, seed, page };
 };
 
 app.get(
   '/',
   cors(corsOptions),
   (req: Request<object, ResponseBody, object, Query>, res) => {
-    const { locale, errors, seed } = parseQuery(req.query);
-    const users = new FakeUserGenerator(locale, seed).generate(USERS_PER_PAGE);
-    const usersWithMistakes = new MistakesGenerator(locale, seed).add(
+    const { locale, errors, seed, page } = parseQuery(req.query);
+    const finalSeed = (seed + page) % MAX_SEED;
+
+    const users = new FakeUserGenerator(locale, finalSeed).generate(
+      USERS_PER_PAGE,
+    );
+    const usersWithMistakes = new MistakesGenerator(locale, finalSeed).add(
       users,
       ['fullName', 'address', 'phone'],
       errors,
     );
 
     res.send({
-      query: { locale, errors: String(errors), seed: String(seed) },
+      query: {
+        locale,
+        errors: String(errors),
+        seed: String(seed),
+        page: String(page),
+      },
       users: usersWithMistakes,
     });
   },
