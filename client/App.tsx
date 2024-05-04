@@ -134,8 +134,8 @@ export const App: React.FC = () => {
     <>
       <header className='navbar bg-light mb-4'>
         <div className='container'>
-          <div className='row gy-2'>
-            <div className='col-12 col-md-6 col-lg-12 col-xl-auto'>
+          <div className='row flex-grow-1 gy-2'>
+            <div className='col-12 col-md-6 col-lg-12 col-xl-2'>
               <div className='navbar-brand'>Fake user data</div>
             </div>
 
@@ -154,7 +154,7 @@ export const App: React.FC = () => {
               </select>
             </div>
 
-            <div className='col-12 col-sm-7 col-md-6 col-lg-4 col-xl-4 d-flex align-items-center gap-2'>
+            <div className='col-12 col-sm-7 col-md-6 col-lg-4 col-xl-auto d-flex align-items-center gap-2'>
               <label className='col-form-label' htmlFor='errors-range'>
                 Errors:
               </label>
@@ -208,7 +208,7 @@ export const App: React.FC = () => {
               </div>
             </div>
 
-            <div className='col-auto col-sm-7 col-md-2 col-lg-2 col-xl-1 d-flex justify-content-end'>
+            <div className='col-auto col-sm-7 col-md-2 col-lg-2 col-xl-auto d-flex justify-content-end'>
               <ExportButton state={state}>Export</ExportButton>
             </div>
           </div>
