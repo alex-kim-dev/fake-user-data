@@ -1,0 +1,7 @@
+{
+  "name": "@fake-user-data/shared",
+  "private": true,
+  "description": "Shared types & constants for fake-user-data",
+  "type": "module",
+  "main": "index.ts"
+}

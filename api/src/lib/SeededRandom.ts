@@ -1,6 +1,6 @@
 import seedrandom from 'seedrandom';
 
-import { Seed } from '../../shared/types';
+import type { Seed } from '@fake-user-data/shared';
 
 export class SeededRandom {
   private random: seedrandom.PRNG;

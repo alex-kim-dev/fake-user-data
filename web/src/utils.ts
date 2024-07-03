@@ -4,7 +4,7 @@ import {
   MAX_SEED,
   MIN_ERRORS,
   MIN_SEED,
-} from '../shared/constants';
+} from '@fake-user-data/shared';
 
 const errorsFormatter = new Intl.NumberFormat('en', {
   maximumFractionDigits: 2,

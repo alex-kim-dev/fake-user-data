@@ -1,1 +1,0 @@
-npm run format && npm run lint:code && npm run lint:styles && npm run typecheck

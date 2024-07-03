@@ -3,4 +3,4 @@ jsxSingleQuote: true
 bracketSameLine: true
 
 plugins:
-  - 'prettier-plugin-packagejson'
+  - prettier-plugin-packagejson

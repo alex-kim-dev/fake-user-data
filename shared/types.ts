@@ -1,4 +1,4 @@
-import { Locale } from './constants';
+import { Locale } from './constants.js';
 
 export type Seed = number;
 export type UUID = string;

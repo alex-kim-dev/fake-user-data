@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-import { Locale, chars } from '../../shared/constants';
-import { Seed } from '../../shared/types';
+import { type Seed, Locale, chars } from '@fake-user-data/shared';
 
 import { SeededRandom } from './SeededRandom';
 
@@ -51,7 +50,7 @@ export class MistakesGenerator {
     const randomKey = keys[this.random.int(keys.length - 1)];
     const type = randomKey === 'phone' ? 'phone' : 'text';
 
-    // eslint-disable-next-line no-param-reassign
+     
     record[randomKey] = this[randomMistake](record[randomKey], type);
   }
 

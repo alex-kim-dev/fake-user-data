@@ -4,7 +4,7 @@ import { random } from 'underscore';
 import cors from 'cors';
 import { mkConfig, generateCsv, type CsvOutput } from 'export-to-csv';
 
-import { Query, ResponseBody, User } from '../shared/types';
+import type { Query, ResponseBody, User } from '@fake-user-data/shared';
 import {
   Locale,
   DEFAULT_ERRORS,
@@ -17,7 +17,7 @@ import {
   MIN_PAGE,
   MAX_PAGE,
   USERS_PER_PAGE,
-} from '../shared/constants';
+} from '@fake-user-data/shared';
 
 import { FakeUserGenerator } from './lib/FakeUserGenerator';
 import { MistakesGenerator } from './lib/MistakesGenerator';

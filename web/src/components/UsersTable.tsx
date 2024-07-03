@@ -1,4 +1,4 @@
-import { type User } from '../../shared/types';
+import type { User } from '@fake-user-data/shared';
 
 interface UsersTableProps {
   users: User[];

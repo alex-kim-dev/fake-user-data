@@ -10,8 +10,10 @@ import { CanceledError } from 'axios';
 import { debounce, random } from 'underscore';
 import { InView } from 'react-intersection-observer';
 
-import type { Query, State, User } from '../shared/types';
 import {
+  type Query,
+  type State,
+  type User,
   DEFAULT_ERRORS,
   DEFAULT_LOCALE,
   DEFAULT_PAGE,
@@ -25,7 +27,7 @@ import {
   STEP_ERRORS,
   STEP_SEED,
   DEBOUNCE_DELAY,
-} from '../shared/constants';
+} from '@fake-user-data/shared';
 
 import { parse } from './utils.ts';
 import { UsersTable } from './components/UsersTable';

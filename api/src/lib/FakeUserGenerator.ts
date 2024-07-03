@@ -1,7 +1,6 @@
 import { Faker, allLocales } from '@faker-js/faker';
 
-import { Seed, User } from '../../shared/types';
-import { Locale } from '../../shared/constants';
+import { type Seed, type User, Locale } from '@fake-user-data/shared';
 
 import { SeededRandom } from './SeededRandom';
 

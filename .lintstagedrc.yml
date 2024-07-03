@@ -1,8 +1,0 @@
-'/*.ts{,x}':
-  - eslint --fix
-
-'*.scss':
-  - stylelint --fix
-
-'*.{html,json,yml,md}':
-  - prettier --write
