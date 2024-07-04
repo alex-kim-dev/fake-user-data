@@ -3,7 +3,7 @@ import { Locale } from './constants.js';
 export type Seed = number;
 export type UUID = string;
 
-export interface User extends Record<string, string> {
+export interface User {
   id: UUID;
   fullName: string;
   address: string;

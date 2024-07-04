@@ -31,9 +31,8 @@ app.get('/', (req: Request<object, ResponseBody, object, Query>, res) => {
   const users = new FakeUserGenerator(locale, finalSeed).generate(PAGE.USERS);
   const usersWithMistakes = new MistakesGenerator(locale, finalSeed).add(
     users,
-    ['fullName', 'address', 'phone'],
     errors,
-  ) as User[];
+  );
 
   res.send({
     query: {
@@ -59,9 +58,8 @@ app.get('/export', (req: Request<object, CsvOutput, object, Query>, res) => {
     );
     const usersWithMistakes = new MistakesGenerator(locale, finalSeed).add(
       cleanUsers,
-      ['fullName', 'address', 'phone'],
       errors,
-    ) as User[];
+    );
     users.push(...usersWithMistakes);
   }
 

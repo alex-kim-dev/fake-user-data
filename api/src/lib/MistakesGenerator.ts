@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-types */
-
-import { chars, Locale, type Seed } from '@fake-user-data/shared';
+import { chars, Locale, type Seed, type User } from '@fake-user-data/shared';
+import { times } from 'underscore';
 
 import { SeededRandom } from './SeededRandom';
 
@@ -10,10 +9,13 @@ enum Mistake {
   swapAdjacentChars,
 }
 
-const uniqueMistakes = Object.keys(Mistake).length / 2 - 1;
+const uniqueMistakes = Object.keys(Mistake).length;
 
 export class MistakesGenerator {
   private random: SeededRandom;
+
+  /** User fields to modify */
+  private keys: (keyof User)[] = ['fullName', 'address', 'phone'];
 
   constructor(
     private locale: Locale,
@@ -45,34 +47,21 @@ export class MistakesGenerator {
     return `${str.slice(0, i)}${str[i + 1]}${str[i]}${str.slice(i + 2)}`;
   }
 
-  private addMistakeToRecord(record: Record<string, string>, keys: string[]) {
+  private addMistakeToUser(user: User) {
     const randomMistake = this.random.int(uniqueMistakes) as Mistake;
-    const randomKey = keys[this.random.int(keys.length - 1)] as string;
-    const type = randomKey === 'phone' ? 'phone' : 'text';
+    const numOfKeys = this.keys.length - 1;
+    const randomKey = this.keys[this.random.int(numOfKeys)]!;
+    const type: 'text' | 'phone' = randomKey === 'phone' ? 'phone' : 'text';
 
-    record[randomKey] = this[randomMistake](record[randomKey] as string, type);
+    user[randomKey] = this[randomMistake](user[randomKey], type);
   }
 
-  private repeat(fn: Function, times: number) {
-    const n = Number.isNaN(times) || times < 0 ? 0 : times;
-    const extra = Number(this.random.quick() < n % 1);
-    const timesToRepeat = Math.trunc(n) + extra;
-
-    return (...args: unknown[]) => {
-      for (let i = 1; i <= timesToRepeat; i += 1) {
-        fn.apply(this, args);
-      }
-    };
-  }
-
-  add(
-    records: Record<string, string>[],
-    keys: string[],
-    numOfMistakes: number,
-  ) {
-    records.forEach((record) =>
-      this.repeat(this.addMistakeToRecord, numOfMistakes)(record, keys),
+  add(users: User[], numOfMistakes: number) {
+    users.forEach((user) =>
+      times(numOfMistakes, () => {
+        this.addMistakeToUser(user);
+      }),
     );
-    return records;
+    return users;
   }
 }
