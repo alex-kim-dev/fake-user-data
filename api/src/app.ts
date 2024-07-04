@@ -1,5 +1,5 @@
 import type { ResponseBody, User } from '@fake-user-data/shared';
-import { MAX_SEED, USERS_PER_PAGE } from '@fake-user-data/shared';
+import { PAGE, SEED } from '@fake-user-data/shared';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { type CsvOutput, generateCsv, mkConfig } from 'export-to-csv';
@@ -26,11 +26,9 @@ app.get('/', (req: Request<object, ResponseBody, object, Query>, res) => {
   if (!req.parsedQuery) throw new Error("Can't access parsed query");
 
   const { locale, errors, seed, page } = req.parsedQuery;
-  const finalSeed = (seed + page) % MAX_SEED;
+  const finalSeed = (seed + page) % SEED.MAX;
 
-  const users = new FakeUserGenerator(locale, finalSeed).generate(
-    USERS_PER_PAGE,
-  );
+  const users = new FakeUserGenerator(locale, finalSeed).generate(PAGE.USERS);
   const usersWithMistakes = new MistakesGenerator(locale, finalSeed).add(
     users,
     ['fullName', 'address', 'phone'],
@@ -55,9 +53,9 @@ app.get('/export', (req: Request<object, CsvOutput, object, Query>, res) => {
   const users: User[] = [];
 
   for (let page = 0; page <= lastPage; page += 1) {
-    const finalSeed = (seed + page) % MAX_SEED;
+    const finalSeed = (seed + page) % SEED.MAX;
     const cleanUsers = new FakeUserGenerator(locale, finalSeed).generate(
-      USERS_PER_PAGE,
+      PAGE.USERS,
     );
     const usersWithMistakes = new MistakesGenerator(locale, finalSeed).add(
       cleanUsers,

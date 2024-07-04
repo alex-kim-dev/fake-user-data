@@ -1,35 +1,26 @@
-import {
-  DEFAULT_ERRORS,
-  DEFAULT_LOCALE,
-  DEFAULT_PAGE,
-  Locale,
-  MAX_ERRORS,
-  MAX_SEED,
-  MIN_ERRORS,
-  MIN_SEED,
-} from '@fake-user-data/shared';
+import { ERRORS, Locale, PAGE, SEED } from '@fake-user-data/shared';
 import { random } from 'underscore';
 import { z } from 'zod';
 
 export const querySchema = z.object({
-  locale: z.nativeEnum(Locale).catch(DEFAULT_LOCALE).default(DEFAULT_LOCALE),
+  locale: z.nativeEnum(Locale).catch(Locale.default).default(Locale.default),
   errors: z.coerce
     .number()
-    .min(MIN_ERRORS)
-    .max(MAX_ERRORS)
-    .catch(DEFAULT_ERRORS)
-    .default(DEFAULT_ERRORS),
+    .min(ERRORS.MIN)
+    .max(ERRORS.MAX)
+    .catch(ERRORS.DEFAULT)
+    .default(ERRORS.DEFAULT),
   seed: z.coerce
     .number()
     .int()
-    .min(MIN_SEED)
-    .max(MAX_SEED)
-    .catch(() => random(MAX_SEED))
-    .default(() => random(MAX_SEED)),
+    .min(SEED.MIN)
+    .max(SEED.MAX)
+    .catch(() => random(SEED.MAX))
+    .default(() => random(SEED.MAX)),
   page: z.coerce
     .number()
     .int()
     .nonnegative()
-    .catch(DEFAULT_PAGE)
-    .default(DEFAULT_PAGE),
+    .catch(PAGE.DEFAULT)
+    .default(PAGE.DEFAULT),
 });

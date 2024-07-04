@@ -1,10 +1,4 @@
-import {
-  Locale,
-  MAX_ERRORS,
-  MAX_SEED,
-  MIN_ERRORS,
-  MIN_SEED,
-} from '@fake-user-data/shared';
+import { Locale, ERRORS, SEED } from '@fake-user-data/shared';
 
 const errorsFormatter = new Intl.NumberFormat('en', {
   maximumFractionDigits: 2,
@@ -27,14 +21,14 @@ export const parse = {
 
   errors(value: string) {
     const parsed = parseFloat(value);
-    if (Number.isNaN(parsed) || parsed < MIN_ERRORS || parsed > MAX_ERRORS)
+    if (Number.isNaN(parsed) || parsed < ERRORS.MIN || parsed > ERRORS.MAX)
       return null;
     return errorsFormatter.format(parsed);
   },
 
   seed(value: string) {
     const parsed = parseInt(value, 10);
-    if (Number.isNaN(parsed) || parsed < MIN_SEED || parsed > MAX_SEED)
+    if (Number.isNaN(parsed) || parsed < SEED.MIN || parsed > SEED.MAX)
       return null;
     return seedFormatter.format(parsed);
   },

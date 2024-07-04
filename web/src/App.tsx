@@ -10,36 +10,27 @@ import { CanceledError } from 'axios';
 import { debounce, random } from 'underscore';
 import { InView } from 'react-intersection-observer';
 
-import {
-  type Query,
-  type State,
-  type User,
-  DEFAULT_ERRORS,
-  DEFAULT_LOCALE,
-  DEFAULT_PAGE,
-  Locale,
-  MAX_ERRORS,
-  MAX_SEED,
-  MIN_ERRORS,
-  MIN_SEED,
-  MAX_ERRORS_RANGE,
-  STEP_ERRORS_RANGE,
-  STEP_ERRORS,
-  STEP_SEED,
-  DEBOUNCE_DELAY,
-} from '@fake-user-data/shared';
+import type { Query, State, User } from '@fake-user-data/shared';
+import { Locale, ERRORS, SEED, PAGE } from '@fake-user-data/shared';
 
 import { parse } from './utils.ts';
 import { UsersTable } from './components/UsersTable';
 import { api } from './api';
 import { ExportButton } from './components/ExportButton.tsx';
 
+const SEED_INPUT_STEP = 1;
+const ERR_RANGE_MIN = ERRORS.MIN;
+const ERR_RANGE_MAX = 10;
+const ERR_RANGE_STEP = 0.25;
+const ERR_INPUT_STEP = 1;
+const DEBOUNCE_DELAY = 1000;
+
 const initializeState = (): State => {
   const params = new URL(window.location.href).searchParams;
   return {
-    locale: parse.locale(params.get('locale') ?? '') ?? DEFAULT_LOCALE,
-    errors: parse.errors(params.get('errors') ?? '') ?? String(DEFAULT_ERRORS),
-    seed: parse.seed(params.get('seed') ?? '') ?? String(random(MAX_SEED)),
+    locale: parse.locale(params.get('locale') ?? '') ?? Locale.default,
+    errors: parse.errors(params.get('errors') ?? '') ?? String(ERRORS.DEFAULT),
+    seed: parse.seed(params.get('seed') ?? '') ?? String(random(SEED.MAX)),
     page: 0,
   };
 };
@@ -94,7 +85,7 @@ export const App: React.FC = () => {
 
   const handleLocaleChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
     const newLocale = Locale[event.currentTarget.value as Locale];
-    const newState = { ...state, locale: newLocale, page: DEFAULT_PAGE };
+    const newState = { ...state, locale: newLocale, page: PAGE.DEFAULT };
     setState(newState);
     debouncedRequest(newState);
   };
@@ -104,7 +95,7 @@ export const App: React.FC = () => {
   }) => {
     const newErrors = value === '' ? '0' : parse.errors(value);
     if (newErrors === null) return;
-    const newState = { ...state, errors: newErrors, page: DEFAULT_PAGE };
+    const newState = { ...state, errors: newErrors, page: PAGE.DEFAULT };
     setState(newState);
     debouncedRequest(newState);
   };
@@ -114,7 +105,7 @@ export const App: React.FC = () => {
   }) => {
     const newSeed = value === '' ? '0' : parse.seed(value);
     if (newSeed === null) return;
-    const newState = { ...state, seed: newSeed, page: DEFAULT_PAGE };
+    const newState = { ...state, seed: newSeed, page: PAGE.DEFAULT };
     setState(newState);
     debouncedRequest(newState);
   };
@@ -122,8 +113,8 @@ export const App: React.FC = () => {
   const handleSeedShuffle: MouseEventHandler<HTMLButtonElement> = () => {
     const newState = {
       ...state,
-      seed: String(random(MAX_SEED)),
-      page: DEFAULT_PAGE,
+      seed: String(random(SEED.MAX)),
+      page: PAGE.DEFAULT,
     };
     setState(newState);
     debouncedRequest(newState);
@@ -165,9 +156,9 @@ export const App: React.FC = () => {
               <input
                 className='form-range'
                 id='errors-range'
-                max={MAX_ERRORS_RANGE}
-                min={MIN_ERRORS}
-                step={STEP_ERRORS_RANGE}
+                max={ERR_RANGE_MAX}
+                min={ERR_RANGE_MIN}
+                step={ERR_RANGE_STEP}
                 type='range'
                 value={state.errors}
                 onChange={handleErrorsChange}
@@ -178,9 +169,9 @@ export const App: React.FC = () => {
               <input
                 className='form-control errors flex-shrink-0'
                 id='errors'
-                max={MAX_ERRORS}
-                min={MIN_ERRORS}
-                step={STEP_ERRORS}
+                max={ERRORS.MAX}
+                min={ERRORS.MIN}
+                step={ERR_INPUT_STEP}
                 type='number'
                 value={state.errors}
                 onChange={handleErrorsChange}
@@ -195,9 +186,9 @@ export const App: React.FC = () => {
                 <input
                   className='form-control seed'
                   id='seed'
-                  max={MAX_SEED}
-                  min={MIN_SEED}
-                  step={STEP_SEED}
+                  max={SEED.MAX}
+                  min={SEED.MIN}
+                  step={SEED_INPUT_STEP}
                   type='number'
                   value={state.seed}
                   onChange={handleSeedChange}
