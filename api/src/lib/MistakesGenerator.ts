@@ -1,15 +1,8 @@
-import { chars, Locale, type Seed, type User } from '@fake-user-data/shared';
+import { Locale, type Seed, type User } from '@fake-user-data/shared';
 import { times } from 'underscore';
 
-import { SeededRandom } from './SeededRandom';
-
-enum Mistake {
-  deleteChar,
-  addChar,
-  swapAdjacentChars,
-}
-
-const uniqueMistakes = Object.keys(Mistake).length;
+import { CHAR_SET, Mistake, UNIQUE_MISTAKES } from '~/constants';
+import { SeededRandom } from '~/lib/SeededRandom';
 
 export class MistakesGenerator {
   private random: SeededRandom;
@@ -33,7 +26,7 @@ export class MistakesGenerator {
   private [Mistake.addChar](str: string, type: 'text' | 'phone') {
     const i = this.random.int(str.length);
 
-    const charSet = chars[this.locale][type];
+    const charSet = CHAR_SET[this.locale][type];
     const j = this.random.int(charSet.length - 1);
     const char = charSet[j];
 
@@ -48,7 +41,7 @@ export class MistakesGenerator {
   }
 
   private addMistakeToUser(user: User) {
-    const randomMistake = this.random.int(uniqueMistakes) as Mistake;
+    const randomMistake = this.random.int(UNIQUE_MISTAKES) as Mistake;
     const numOfKeys = this.keys.length - 1;
     const randomKey = this.keys[this.random.int(numOfKeys)]!;
     const type: 'text' | 'phone' = randomKey === 'phone' ? 'phone' : 'text';

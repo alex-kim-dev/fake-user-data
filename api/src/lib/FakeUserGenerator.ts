@@ -1,7 +1,7 @@
 import { Locale, type Seed, type User } from '@fake-user-data/shared';
 import { allLocales, Faker } from '@faker-js/faker';
 
-import { SeededRandom } from './SeededRandom';
+import { SeededRandom } from '~/lib/SeededRandom';
 
 const address: Record<
   Locale,
