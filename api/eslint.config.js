@@ -15,5 +15,8 @@ export default tseslint.config(
       },
     },
     ignores: ['.vscode/', 'coverage/', 'dist/', 'node_modules/'],
+    rules: {
+      '@typescript-eslint/no-non-null-assertion': 'off',
+    },
   },
 );

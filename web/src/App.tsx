@@ -58,22 +58,24 @@ export const App: React.FC = () => {
 
   const [state, setState] = useState(initializeState);
 
-  const requestFakeUsers = async (state: State, reload = true) => {
+  const requestFakeUsers = (state: State, reload = true) => {
     setLoading(true);
     setError(null);
 
-    try {
-      const { data } = await api.getFakeUsers(state);
-      setUsers((prevUsers) =>
-        reload ? data.users : [...prevUsers, ...data.users],
-      );
-      if (reload) setSearchParams(data.query);
-      setLoading(false);
-    } catch (err) {
-      if (!(err instanceof Error) || err instanceof CanceledError) return;
-      setError(err);
-      setLoading(false);
-    }
+    api
+      .getFakeUsers(state)
+      .then(({ data }) => {
+        setUsers((prevUsers) =>
+          reload ? data.users : [...prevUsers, ...data.users],
+        );
+        if (reload) setSearchParams(data.query);
+        setLoading(false);
+      })
+      .catch((err: unknown) => {
+        if (!(err instanceof Error) || err instanceof CanceledError) return;
+        setError(err);
+        setLoading(false);
+      });
   };
 
   const debouncedRequest = useMemo(
@@ -223,7 +225,9 @@ export const App: React.FC = () => {
               <UsersTable users={users} />
               <InView
                 as='div'
-                onChange={(inView) => inView && handleLoadMore()}
+                onChange={(inView) => {
+                  inView && handleLoadMore();
+                }}
               />
             </>
           )}

@@ -116,6 +116,9 @@ export class FakeUserGenerator {
 
   generateAddress() {
     const randomFormat = this.random.int(address[this.locale].length - 1);
-    return address[this.locale][randomFormat](this.faker.location, this.random);
+    return address[this.locale][randomFormat]!(
+      this.faker.location,
+      this.random,
+    );
   }
 }

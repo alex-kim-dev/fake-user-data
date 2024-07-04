@@ -45,13 +45,12 @@ export class MistakesGenerator {
     return `${str.slice(0, i)}${str[i + 1]}${str[i]}${str.slice(i + 2)}`;
   }
 
-  private addMistakeToRecord<T extends {}>(record: T, keys: (keyof T)[]) {
-    const randomMistake = this.random.int(uniqueMistakes);
-    const randomKey = keys[this.random.int(keys.length - 1)];
+  private addMistakeToRecord(record: Record<string, string>, keys: string[]) {
+    const randomMistake = this.random.int(uniqueMistakes) as Mistake;
+    const randomKey = keys[this.random.int(keys.length - 1)] as string;
     const type = randomKey === 'phone' ? 'phone' : 'text';
 
-     
-    record[randomKey] = this[randomMistake](record[randomKey], type);
+    record[randomKey] = this[randomMistake](record[randomKey] as string, type);
   }
 
   private repeat(fn: Function, times: number) {
@@ -59,14 +58,18 @@ export class MistakesGenerator {
     const extra = Number(this.random.quick() < n % 1);
     const timesToRepeat = Math.trunc(n) + extra;
 
-    return (...args) => {
+    return (...args: unknown[]) => {
       for (let i = 1; i <= timesToRepeat; i += 1) {
         fn.apply(this, args);
       }
     };
   }
 
-  add<T extends {}>(records: T[], keys: (keyof T)[], numOfMistakes: number) {
+  add(
+    records: Record<string, string>[],
+    keys: string[],
+    numOfMistakes: number,
+  ) {
     records.forEach((record) =>
       this.repeat(this.addMistakeToRecord, numOfMistakes)(record, keys),
     );

@@ -22,7 +22,7 @@ import {
 import { FakeUserGenerator } from './lib/FakeUserGenerator';
 import { MistakesGenerator } from './lib/MistakesGenerator';
 
-dotenv.config({ path: '.env.local' });
+dotenv.config();
 const { PORT, CLIENT_URL } = process.env;
 
 const corsOptions = {
@@ -70,7 +70,7 @@ app.get(
       users,
       ['fullName', 'address', 'phone'],
       errors,
-    );
+    ) as User[];
 
     res.send({
       query: {
@@ -100,7 +100,7 @@ app.get(
         cleanUsers,
         ['fullName', 'address', 'phone'],
         errors,
-      );
+      ) as User[];
       users.push(...usersWithMistakes);
     }
 

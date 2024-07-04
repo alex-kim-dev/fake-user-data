@@ -24,6 +24,7 @@ export default tseslint.config(
       ],
       '@typescript-eslint/prefer-promise-reject-errors': 'off',
       '@typescript-eslint/restrict-template-expressions': 'off',
+      '@typescript-eslint/no-unsafe-enum-comparison': 'off',
     },
   },
 );

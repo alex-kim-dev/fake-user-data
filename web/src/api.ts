@@ -3,7 +3,7 @@ import axiosLib from 'axios';
 import type { ResponseBody, State } from '@fake-user-data/shared';
 
 const axios = axiosLib.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL as string,
   timeout: 5000,
 });
 
