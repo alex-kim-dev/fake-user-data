@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
-import { type Seed, Locale, chars } from '@fake-user-data/shared';
+import { chars, Locale, type Seed } from '@fake-user-data/shared';
 
 import { SeededRandom } from './SeededRandom';
 
