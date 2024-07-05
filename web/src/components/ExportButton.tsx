@@ -1,8 +1,7 @@
 import { type ReactNode, type MouseEventHandler, useState } from 'react';
 import { CanceledError } from 'axios';
 
-import { State } from '@fake-user-data/shared';
-
+import type { State } from '~/types';
 import { api } from '~/api';
 import { download } from '~/utils';
 

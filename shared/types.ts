@@ -1,4 +1,5 @@
-import { Locale } from './constants.js';
+import { querySchema } from './schema.js';
+import { z } from 'zod';
 
 export type Seed = number;
 export type UUID = string;
@@ -10,21 +11,9 @@ export interface User {
   phone: string;
 }
 
-export interface Query {
-  locale: Locale;
-  errors: string;
-  seed: string;
-  page: string;
-}
+export type Query = z.infer<typeof querySchema>;
 
 export interface ResponseBody {
   query: Query;
   users: User[];
-}
-
-export interface State {
-  locale: Locale;
-  errors: string;
-  seed: string;
-  page: number;
 }

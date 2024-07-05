@@ -1,8 +1,4 @@
-import { z } from 'zod';
-
-import type { querySchema } from '~/schema';
-
-export type Query = z.infer<typeof querySchema>;
+import type { Query } from '@fake-user-data/shared';
 
 export type CharSet = 'text' | 'phone';
 

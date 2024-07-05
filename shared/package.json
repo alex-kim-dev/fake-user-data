@@ -3,5 +3,12 @@
   "private": true,
   "description": "Shared types & constants for fake-user-data",
   "type": "module",
-  "main": "index.ts"
+  "main": "index.ts",
+  "dependencies": {
+    "underscore": "1.13.6",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/underscore": "1.11.15"
+  }
 }

@@ -106,7 +106,18 @@ importers:
         specifier: 7.15.0
         version: 7.15.0(eslint@9.6.0)(typescript@5.5.3)
 
-  shared: {}
+  shared:
+    dependencies:
+      underscore:
+        specifier: 1.13.6
+        version: 1.13.6
+      zod:
+        specifier: 3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@types/underscore':
+        specifier: 1.11.15
+        version: 1.11.15
 
   web:
     dependencies:

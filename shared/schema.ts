@@ -1,4 +1,4 @@
-import { ERRORS, Locale, PAGE, SEED } from '@fake-user-data/shared';
+import { ERRORS, Locale, PAGE, SEED } from './constants';
 import { random } from 'underscore';
 import { z } from 'zod';
 

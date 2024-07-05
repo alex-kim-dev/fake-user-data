@@ -10,13 +10,14 @@ import { CanceledError } from 'axios';
 import { debounce, random } from 'underscore';
 import { InView } from 'react-intersection-observer';
 
-import type { Query, State, User } from '@fake-user-data/shared';
+import type { User } from '@fake-user-data/shared';
 import { Locale, ERRORS, SEED, PAGE } from '@fake-user-data/shared';
 
 import { parse } from './utils.ts';
 import { UsersTable } from './components/UsersTable';
 import { api } from './api';
 import { ExportButton } from './components/ExportButton.tsx';
+import type { Query, State } from './types.ts';
 
 const SEED_INPUT_STEP = 1;
 const ERR_RANGE_MIN = ERRORS.MIN;
@@ -59,7 +60,7 @@ export const App: React.FC = () => {
         setUsers((prevUsers) =>
           reload ? data.users : [...prevUsers, ...data.users],
         );
-        if (reload) setSearchParams(data.query);
+        if (reload) setSearchParams(data.query as unknown as Query);
         setLoading(false);
       })
       .catch((err: unknown) => {

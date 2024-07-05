@@ -1,4 +1,4 @@
-import type { ResponseBody, User } from '@fake-user-data/shared';
+import type { Query, ResponseBody, User } from '@fake-user-data/shared';
 import { PAGE, SEED } from '@fake-user-data/shared';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -9,7 +9,6 @@ import morgan from 'morgan';
 import { FakeUserGenerator } from '~/lib/FakeUserGenerator';
 import { MistakesGenerator } from '~/lib/MistakesGenerator';
 import { validateQuery } from '~/middleware';
-import type { Query } from '~/types';
 
 dotenv.config();
 
@@ -35,12 +34,7 @@ app.get('/', (req: Request<object, ResponseBody, object, Query>, res) => {
   );
 
   res.send({
-    query: {
-      locale,
-      errors: String(errors),
-      seed: String(seed),
-      page: String(page),
-    },
+    query: { locale, errors, seed, page },
     users: usersWithMistakes,
   });
 });
