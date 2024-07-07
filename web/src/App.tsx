@@ -34,7 +34,7 @@ const DEBOUNCE_DELAY = 1000;
 
 const initializeState = (): Query => {
   const params = new URL(window.location.href).searchParams;
-  return querySchemaWithDefaults.parse(params);
+  return querySchemaWithDefaults.parse(Object.fromEntries(params.entries()));
 };
 
 const setSearchParams = (query: Query) => {
