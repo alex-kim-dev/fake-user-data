@@ -41,7 +41,7 @@ export class MistakesGenerator {
   }
 
   private addMistakeToUser(user: User) {
-    const randomMistake = this.random.int(UNIQUE_MISTAKES) as Mistake;
+    const randomMistake = this.random.int(UNIQUE_MISTAKES - 1) as Mistake;
     const numOfKeys = this.keys.length - 1;
     const randomKey = this.keys[this.random.int(numOfKeys)]!;
     const type: 'text' | 'phone' = randomKey === 'phone' ? 'phone' : 'text';
