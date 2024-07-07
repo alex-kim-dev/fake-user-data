@@ -1,24 +1,21 @@
 import axiosLib from 'axios';
 
-import type { ResponseBody } from '@fake-user-data/shared';
-import { State } from '~/types';
+import type { ResponseBody, Query } from '@fake-user-data/shared';
+import { formatter } from './utils';
 
 const axios = axiosLib.create({
   baseURL: import.meta.env.VITE_API_URL as string,
-  timeout: 5000,
+  timeout: 120_000,
 });
 
 export const api = {
   controllers: {} as Partial<Record<string, AbortController>>,
 
-  getFakeUsers(state: Partial<State>) {
+  getFakeUsers(query: Query) {
     const controller = new AbortController();
     api.controllers.getFakeUsers = controller;
 
-    const queryString = new URLSearchParams({
-      ...state,
-      page: String(state.page),
-    });
+    const queryString = new URLSearchParams(formatter.query.toString(query));
     const url = `/${queryString.size === 0 ? '' : '?'}${queryString}`;
 
     return axios.get<ResponseBody>(url, {
@@ -26,14 +23,11 @@ export const api = {
     });
   },
 
-  exportToCSV(state: Partial<State>) {
+  exportToCSV(query: Query) {
     const controller = new AbortController();
     api.controllers.exportCSV = controller;
 
-    const queryString = new URLSearchParams({
-      ...state,
-      page: String(state.page),
-    });
+    const queryString = new URLSearchParams(formatter.query.toString(query));
     const url = `/export${queryString.size === 0 ? '' : '?'}${queryString}`;
 
     return axios.get<Blob>(url, {

@@ -1,36 +1,25 @@
-import { Locale, ERRORS, SEED } from '@fake-user-data/shared';
+import { Query } from '@fake-user-data/shared';
 
-const errorsFormatter = new Intl.NumberFormat('en', {
-  maximumFractionDigits: 2,
-  roundingMode: 'trunc',
-  useGrouping: false,
-} as Intl.NumberFormatOptions);
+export const formatter = {
+  errors: new Intl.NumberFormat('en', {
+    maximumFractionDigits: 2,
+    roundingMode: 'trunc',
+    useGrouping: false,
+  }),
 
-const seedFormatter = new Intl.NumberFormat('en', {
-  maximumFractionDigits: 0,
-  roundingMode: 'trunc',
-  useGrouping: false,
-} as Intl.NumberFormatOptions);
+  seed: new Intl.NumberFormat('en', {
+    maximumFractionDigits: 0,
+    roundingMode: 'trunc',
+    useGrouping: false,
+  }),
 
-export const parse = {
-  locale(value: string) {
-    return Object.values(Locale).some((locale) => locale === value)
-      ? (value as Locale)
-      : null;
-  },
-
-  errors(value: string) {
-    const parsed = parseFloat(value);
-    if (Number.isNaN(parsed) || parsed < ERRORS.MIN || parsed > ERRORS.MAX)
-      return null;
-    return errorsFormatter.format(parsed);
-  },
-
-  seed(value: string) {
-    const parsed = parseInt(value, 10);
-    if (Number.isNaN(parsed) || parsed < SEED.MIN || parsed > SEED.MAX)
-      return null;
-    return seedFormatter.format(parsed);
+  query: {
+    toString: (query: Query) => ({
+      locale: query.locale,
+      errors: String(query.errors),
+      seed: String(query.seed),
+      page: String(query.page),
+    }),
   },
 };
 

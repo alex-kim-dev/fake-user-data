@@ -1,17 +1,17 @@
 import { type ReactNode, type MouseEventHandler, useState } from 'react';
 import { CanceledError } from 'axios';
 
-import type { State } from '~/types';
+import type { Query } from '@fake-user-data/shared';
 import { api } from '~/api';
 import { download } from '~/utils';
 
 interface ExportButtonProps {
-  state: State;
+  query: Query;
   children?: ReactNode;
 }
 
 export const ExportButton: React.FC<ExportButtonProps> = ({
-  state,
+  query,
   children,
 }) => {
   const [isLoading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
     setError(null);
 
     try {
-      const { data } = await api.exportToCSV(state);
+      const { data } = await api.exportToCSV(query);
       download(data, 'fake_users.csv');
       setLoading(false);
     } catch (err) {

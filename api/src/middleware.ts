@@ -1,8 +1,8 @@
-import { querySchema } from '@fake-user-data/shared';
+import { querySchemaWithDefaults } from '@fake-user-data/shared';
 import type { Request, RequestHandler } from 'express';
 
 export const validateQuery: RequestHandler = (req: Request, res, next) => {
-  const { success, data, error } = querySchema.safeParse(req.query);
+  const { success, data, error } = querySchemaWithDefaults.safeParse(req.query);
 
   if (success) {
     req.parsedQuery = data;

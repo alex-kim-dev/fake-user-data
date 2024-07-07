@@ -10,14 +10,20 @@ import { CanceledError } from 'axios';
 import { debounce, random } from 'underscore';
 import { InView } from 'react-intersection-observer';
 
-import type { User } from '@fake-user-data/shared';
-import { Locale, ERRORS, SEED, PAGE } from '@fake-user-data/shared';
+import type { User, Query } from '@fake-user-data/shared';
+import {
+  Locale,
+  ERRORS,
+  SEED,
+  PAGE,
+  querySchema,
+  querySchemaWithDefaults,
+} from '@fake-user-data/shared';
 
-import { parse } from './utils.ts';
-import { UsersTable } from './components/UsersTable';
-import { api } from './api';
-import { ExportButton } from './components/ExportButton.tsx';
-import type { Query, State } from './types.ts';
+import { formatter } from '~/utils.ts';
+import { UsersTable } from '~/components/UsersTable';
+import { api } from '~/api';
+import { ExportButton } from '~/components/ExportButton.tsx';
 
 const SEED_INPUT_STEP = 1;
 const ERR_RANGE_MIN = ERRORS.MIN;
@@ -26,20 +32,15 @@ const ERR_RANGE_STEP = 0.25;
 const ERR_INPUT_STEP = 1;
 const DEBOUNCE_DELAY = 1000;
 
-const initializeState = (): State => {
+const initializeState = (): Query => {
   const params = new URL(window.location.href).searchParams;
-  return {
-    locale: parse.locale(params.get('locale') ?? '') ?? Locale.default,
-    errors: parse.errors(params.get('errors') ?? '') ?? String(ERRORS.DEFAULT),
-    seed: parse.seed(params.get('seed') ?? '') ?? String(random(SEED.MAX)),
-    page: 0,
-  };
+  return querySchemaWithDefaults.parse(params);
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const setSearchParams = ({ page, ...rest }: Query) => {
+const setSearchParams = (query: Query) => {
   const url = new URL(window.location.href);
-  url.search = new URLSearchParams(rest).toString();
+  const { locale, errors, seed } = formatter.query.toString(query);
+  url.search = new URLSearchParams({ locale, errors, seed }).toString();
   window.history.replaceState(null, '', url);
 };
 
@@ -48,19 +49,24 @@ export const App: React.FC = () => {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
-  const [state, setState] = useState(initializeState);
+  const [query, setQuery] = useState(initializeState);
+  const formatted = {
+    locale: query.locale,
+    errors: formatter.errors.format(query.errors),
+    seed: formatter.seed.format(query.seed),
+  };
 
-  const requestFakeUsers = (state: State, reload = true) => {
+  const getUsers = (query: Query, resetPage = true) => {
     setLoading(true);
     setError(null);
 
     api
-      .getFakeUsers(state)
+      .getFakeUsers(query)
       .then(({ data }) => {
         setUsers((prevUsers) =>
-          reload ? data.users : [...prevUsers, ...data.users],
+          resetPage ? data.users : [...prevUsers, ...data.users],
         );
-        if (reload) setSearchParams(data.query as unknown as Query);
+        if (resetPage) setSearchParams(data.query);
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -70,60 +76,67 @@ export const App: React.FC = () => {
       });
   };
 
-  const debouncedRequest = useMemo(
-    () => debounce(requestFakeUsers, DEBOUNCE_DELAY, false),
+  const getUsersWithDebounce = useMemo(
+    () => debounce(getUsers, DEBOUNCE_DELAY, false),
     [],
   );
 
   useEffect(() => {
-    requestFakeUsers(state);
+    getUsers(query);
 
     return () => {
       api.controllers.getFakeUsers?.abort();
-      debouncedRequest.cancel();
+      getUsersWithDebounce.cancel();
     };
   }, []);
 
   const handleLocaleChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
     const newLocale = Locale[event.currentTarget.value as Locale];
-    const newState = { ...state, locale: newLocale, page: PAGE.DEFAULT };
-    setState(newState);
-    debouncedRequest(newState);
+    const newQuery = { ...query, locale: newLocale, page: PAGE.DEFAULT };
+    setQuery(newQuery);
+    getUsersWithDebounce(newQuery);
   };
 
   const handleErrorsChange: ChangeEventHandler<HTMLInputElement> = ({
     currentTarget: { value },
   }) => {
-    const newErrors = value === '' ? '0' : parse.errors(value);
-    if (newErrors === null) return;
-    const newState = { ...state, errors: newErrors, page: PAGE.DEFAULT };
-    setState(newState);
-    debouncedRequest(newState);
+    const { success, data } = querySchema.shape.errors.safeParse(value);
+    if (!success && value !== '') return null;
+
+    const newErrors = success ? data : 0;
+    const newQuery = { ...query, errors: newErrors, page: PAGE.DEFAULT };
+
+    setQuery(newQuery);
+    getUsersWithDebounce(newQuery);
   };
 
   const handleSeedChange: ChangeEventHandler<HTMLInputElement> = ({
     currentTarget: { value },
   }) => {
-    const newSeed = value === '' ? '0' : parse.seed(value);
-    if (newSeed === null) return;
-    const newState = { ...state, seed: newSeed, page: PAGE.DEFAULT };
-    setState(newState);
-    debouncedRequest(newState);
+    const { success, data } = querySchema.shape.seed.safeParse(value);
+    if (!success && value !== '') return null;
+
+    const newSeed = success ? data : 0;
+    const newQuery = { ...query, seed: newSeed, page: PAGE.DEFAULT };
+
+    setQuery(newQuery);
+    getUsersWithDebounce(newQuery);
   };
 
   const handleSeedShuffle: MouseEventHandler<HTMLButtonElement> = () => {
-    const newState = {
-      ...state,
-      seed: String(random(SEED.MAX)),
+    const newQuery = {
+      ...query,
+      seed: random(SEED.MAX),
       page: PAGE.DEFAULT,
     };
-    setState(newState);
-    debouncedRequest(newState);
+
+    setQuery(newQuery);
+    getUsersWithDebounce(newQuery);
   };
 
   const handleLoadMore = () => {
-    requestFakeUsers({ ...state, page: state.page + 1 }, false);
-    setState((prevState) => ({ ...prevState, page: prevState.page + 1 }));
+    getUsers({ ...query, page: query.page + 1 }, false);
+    setQuery((prevQuery) => ({ ...prevQuery, page: prevQuery.page + 1 }));
   };
 
   return (
@@ -141,7 +154,7 @@ export const App: React.FC = () => {
               </label>
               <select
                 className='form-select'
-                value={state.locale}
+                value={formatted.locale}
                 onChange={handleLocaleChange}
                 id='region'>
                 <option value={Locale.en}>USA</option>
@@ -161,7 +174,7 @@ export const App: React.FC = () => {
                 min={ERR_RANGE_MIN}
                 step={ERR_RANGE_STEP}
                 type='range'
-                value={state.errors}
+                value={formatted.errors}
                 onChange={handleErrorsChange}
               />
               <label className='visually-hidden' htmlFor='errors'>
@@ -174,7 +187,7 @@ export const App: React.FC = () => {
                 min={ERRORS.MIN}
                 step={ERR_INPUT_STEP}
                 type='number'
-                value={state.errors}
+                value={formatted.errors}
                 onChange={handleErrorsChange}
               />
             </div>
@@ -191,7 +204,7 @@ export const App: React.FC = () => {
                   min={SEED.MIN}
                   step={SEED_INPUT_STEP}
                   type='number'
-                  value={state.seed}
+                  value={formatted.seed}
                   onChange={handleSeedChange}
                 />
                 <button
@@ -205,7 +218,7 @@ export const App: React.FC = () => {
             </div>
 
             <div className='col-auto col-sm-7 col-md-2 col-lg-2 col-xl-auto d-flex justify-content-end'>
-              <ExportButton state={state}>Export</ExportButton>
+              <ExportButton query={query}>Export</ExportButton>
             </div>
           </div>
         </div>
