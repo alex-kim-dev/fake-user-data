@@ -1,8 +1,8 @@
 import { Locale, type Seed, type User } from '@fake-user-data/shared';
-import { times } from 'underscore';
 
 import { CHAR_SET, Mistake, UNIQUE_MISTAKES } from '~/constants';
 import { SeededRandom } from '~/lib/SeededRandom';
+import type { CharSet } from '~/types';
 
 export class MistakesGenerator {
   private random: SeededRandom;
@@ -23,7 +23,7 @@ export class MistakesGenerator {
     return `${str.slice(0, i)}${str.slice(i + 1)}`;
   }
 
-  private [Mistake.addChar](str: string, type: 'text' | 'phone') {
+  private [Mistake.addChar](str: string, type: CharSet) {
     const i = this.random.int(str.length);
 
     const charSet = CHAR_SET[this.locale][type];
@@ -44,17 +44,21 @@ export class MistakesGenerator {
     const randomMistake = this.random.int(UNIQUE_MISTAKES - 1) as Mistake;
     const numOfKeys = this.keys.length - 1;
     const randomKey = this.keys[this.random.int(numOfKeys)]!;
-    const type: 'text' | 'phone' = randomKey === 'phone' ? 'phone' : 'text';
+    const type: CharSet = randomKey === 'phone' ? 'phone' : 'text';
 
     user[randomKey] = this[randomMistake](user[randomKey], type);
   }
 
   add(users: User[], numOfMistakes: number) {
-    users.forEach((user) =>
-      times(numOfMistakes, () => {
+    const extra = Number(this.random.quick() < numOfMistakes % 1);
+    const timesToRepeat = Math.trunc(numOfMistakes) + extra;
+
+    users.forEach((user) => {
+      for (let i = 1; i <= timesToRepeat; i += 1) {
         this.addMistakeToUser(user);
-      }),
-    );
+      }
+    });
+
     return users;
   }
 }
