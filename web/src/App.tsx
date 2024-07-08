@@ -6,10 +6,17 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { Shuffle, ExclamationTriangleFill } from 'react-bootstrap-icons';
+import {
+  Shuffle,
+  ExclamationTriangleFill,
+  MenuButtonFill,
+} from 'react-bootstrap-icons';
 import { CanceledError } from 'axios';
 import { debounce, random } from 'underscore';
 import { InView } from 'react-intersection-observer';
+import { useMediaQuery } from '@uidotdev/usehooks';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Popover from 'react-bootstrap/Popover';
 
 import type { User, Query } from '@fake-user-data/shared';
 import {
@@ -56,6 +63,8 @@ export const App: React.FC = () => {
     errors: formatter.errors.format(query.errors),
     seed: formatter.seed.format(query.seed),
   };
+
+  const isLgScreen = useMediaQuery('(width >= 992px');
 
   const getUsers = (query: Query, resetPage = true) => {
     setLoading(true);
@@ -151,92 +160,107 @@ export const App: React.FC = () => {
     setQuery((prevQuery) => ({ ...prevQuery, page: prevQuery.page + 1 }));
   };
 
+  const controls = (
+    <div className='controls d-grid align-items-center gap-3'>
+      <label className='col-form-label region-label' htmlFor='region'>
+        Region:
+      </label>
+      <select
+        className='form-select region-input'
+        value={formatted.locale}
+        onChange={handleLocaleChange}
+        id='region'>
+        <option value={Locale.en}>USA</option>
+        <option value={Locale.es}>Spain</option>
+        <option value={Locale.fr}>France</option>
+      </select>
+
+      <label className='col-form-label errors-label' htmlFor='errors-range'>
+        Errors:
+      </label>
+      <input
+        className='form-range errors-range'
+        id='errors-range'
+        max={ERR_RANGE_MAX}
+        min={ERR_RANGE_MIN}
+        step={ERR_RANGE_STEP}
+        type='range'
+        value={formatted.errors}
+        onChange={handleErrorsChange}
+      />
+      <label className='visually-hidden' htmlFor='errors'>
+        Errors:
+      </label>
+      <input
+        className='form-control errors-input'
+        id='errors'
+        max={ERRORS.MAX}
+        min={ERRORS.MIN}
+        step={ERR_INPUT_STEP}
+        type='number'
+        value={formatted.errors}
+        onChange={handleErrorsChange}
+      />
+
+      <label className='col-form-label seed-label' htmlFor='seed'>
+        Seed:
+      </label>
+      <div className='input-group flex-nowrap seed-input-group'>
+        <input
+          className='form-control seed-input'
+          id='seed'
+          max={SEED.MAX}
+          min={SEED.MIN}
+          step={SEED_INPUT_STEP}
+          type='number'
+          value={formatted.seed}
+          onChange={handleSeedChange}
+        />
+        <button
+          aria-label='shuffle seed'
+          className='btn btn-outline-primary d-flex align-items-center'
+          type='button'
+          onClick={handleSeedShuffle}>
+          <Shuffle height={20} width={20} aria-hidden />
+        </button>
+      </div>
+    </div>
+  );
+
+  const popover = (
+    <Popover className='shadow'>
+      <Popover.Body>{controls}</Popover.Body>
+    </Popover>
+  );
+
   return (
     <>
       <header className='navbar bg-primary-subtle mb-4'>
-        <div className='container'>
-          <div className='row flex-grow-1 gy-2'>
-            <div className='col-12 col-md-6 col-lg-12 col-xl-2'>
-              <div className='navbar-brand'>Fake user data</div>
-            </div>
+        <div className='container-xl d-flex gap-2 gap-sm-3'>
+          <div className='navbar-brand flex-grow-1'>Fake user data</div>
 
-            <div className='col-12 col-sm-5 col-md-6 col-lg col-xl d-flex align-items-center gap-2'>
-              <label className='col-form-label' htmlFor='region'>
-                Region:
-              </label>
-              <select
-                className='form-select'
-                value={formatted.locale}
-                onChange={handleLocaleChange}
-                id='region'>
-                <option value={Locale.en}>USA</option>
-                <option value={Locale.es}>Spain</option>
-                <option value={Locale.fr}>France</option>
-              </select>
-            </div>
+          {isLgScreen ? (
+            controls
+          ) : (
+            <OverlayTrigger
+              trigger='click'
+              placement='bottom'
+              rootClose={true}
+              overlay={popover}>
+              <button
+                type='button'
+                className='btn btn-primary'
+                aria-label='controls'>
+                <MenuButtonFill size={20} aria-hidden />
+              </button>
+            </OverlayTrigger>
+          )}
 
-            <div className='col-12 col-sm-7 col-md-6 col-lg-4 col-xl-auto d-flex align-items-center gap-2'>
-              <label className='col-form-label' htmlFor='errors-range'>
-                Errors:
-              </label>
-              <input
-                className='form-range'
-                id='errors-range'
-                max={ERR_RANGE_MAX}
-                min={ERR_RANGE_MIN}
-                step={ERR_RANGE_STEP}
-                type='range'
-                value={formatted.errors}
-                onChange={handleErrorsChange}
-              />
-              <label className='visually-hidden' htmlFor='errors'>
-                Errors:
-              </label>
-              <input
-                className='form-control errors flex-shrink-0'
-                id='errors'
-                max={ERRORS.MAX}
-                min={ERRORS.MIN}
-                step={ERR_INPUT_STEP}
-                type='number'
-                value={formatted.errors}
-                onChange={handleErrorsChange}
-              />
-            </div>
-
-            <div className='col col-sm-5 col-md-4 col-lg col-xl d-flex align-items-center gap-2'>
-              <label className='col-form-label' htmlFor='seed'>
-                Seed:
-              </label>
-              <div className='input-group flex-nowrap'>
-                <input
-                  className='form-control seed'
-                  id='seed'
-                  max={SEED.MAX}
-                  min={SEED.MIN}
-                  step={SEED_INPUT_STEP}
-                  type='number'
-                  value={formatted.seed}
-                  onChange={handleSeedChange}
-                />
-                <button
-                  aria-label='shuffle seed'
-                  className='btn btn-outline-primary d-flex align-items-center'
-                  type='button'
-                  onClick={handleSeedShuffle}>
-                  <Shuffle height={20} width={20} aria-hidden />
-                </button>
-              </div>
-            </div>
-
-            <div className='col-auto col-sm-7 col-md-2 col-lg-2 col-xl-auto d-flex justify-content-end'>
-              <ExportButton query={query}>Export</ExportButton>
-            </div>
-          </div>
+          <ExportButton query={query}>Export</ExportButton>
         </div>
       </header>
-      <main className='container'>
-        <div className='overflow-auto mb-3'>
+      <main className='container-xl'>
+        <div className='overflow-auto row mb-3'>
           {users.length > 0 && (
             <>
               <UsersTable users={users} />
@@ -249,6 +273,7 @@ export const App: React.FC = () => {
             </>
           )}
         </div>
+
         <div className='d-flex flex-column align-items-center'>
           {error && (
             <div

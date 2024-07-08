@@ -13,10 +13,12 @@
   },
   "dependencies": {
     "@fake-user-data/shared": "workspace:*",
+    "@uidotdev/usehooks": "2.4.1",
     "axios": "1.7.2",
     "bootstrap": "5.3.3",
     "clsx": "2.1.1",
     "react": "18.3.1",
+    "react-bootstrap": "2.10.4",
     "react-bootstrap-icons": "1.11.4",
     "react-dom": "18.3.1",
     "react-intersection-observer": "9.10.3",

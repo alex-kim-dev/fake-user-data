@@ -1,11 +1,63 @@
-$form-range-track-bg: var(--bs-body-bg);
+$form-track-range-bg: var(--bs-primary-border-subtle);
 
 @import '../node_modules/bootstrap/scss/bootstrap';
 
-.errors {
-  flex-basis: 12ch;
+.controls {
+  grid-template:
+    'region-label region-input' auto
+    'errors-label errors-input' auto
+    '     .       errors-range' auto
+    ' seed-label   seed-input ' auto
+    / auto 1fr;
 }
 
-.seed {
-  flex-basis: 12ch !important;
+@include media-breakpoint-down(lg) {
+  .region {
+    &-label {
+      grid-area: region-label;
+    }
+    &-input {
+      grid-area: region-input;
+    }
+  }
+
+  .errors {
+    &-label {
+      grid-area: errors-label;
+    }
+    &-range {
+      grid-area: errors-range;
+    }
+    &-input {
+      grid-area: errors-input;
+    }
+  }
+
+  .seed {
+    &-label {
+      grid-area: seed-label;
+    }
+    &-input-group {
+      grid-area: seed-input;
+    }
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  .controls {
+    grid-template: none;
+    grid-auto-flow: column;
+  }
+
+  .errors-range {
+    width: 8em;
+  }
+
+  .errors-input {
+    width: 5.25em;
+  }
+
+  .seed-input {
+    width: 7em !important;
+  }
 }
