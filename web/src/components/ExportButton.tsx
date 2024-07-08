@@ -16,11 +16,9 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
   children,
 }) => {
   const [isLoading, setLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
 
   const handleExport: MouseEventHandler<HTMLButtonElement> = async () => {
     setLoading(true);
-    setError(null);
 
     try {
       const { data } = await api.exportToCSV(query);
@@ -28,7 +26,6 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
       setLoading(false);
     } catch (err) {
       if (!(err instanceof Error) || err instanceof CanceledError) return;
-      setError(err);
       setLoading(false);
     }
   };
@@ -37,10 +34,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
     <button
       type='button'
       disabled={isLoading}
-      className={cn('btn d-flex align-items-center position-relative', {
-        'btn-outline-primary': !error,
-        'btn-outline-danger': error,
-      })}
+      className='btn d-flex align-items-center position-relative btn-outline-primary'
       onClick={handleExport}>
       {isLoading && (
         <span className='position-absolute top-50 start-50 translate-middle'>
@@ -48,7 +42,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
         </span>
       )}
       <span className={cn({ 'opacity-0': isLoading })}>
-        {error ? 'Retry' : children || 'Export'}
+        {children || 'Export'}
       </span>
     </button>
   );
