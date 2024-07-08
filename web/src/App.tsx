@@ -2,6 +2,7 @@ import {
   ChangeEventHandler,
   MouseEventHandler,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useState,
 } from 'react';
@@ -81,6 +82,17 @@ export const App: React.FC = () => {
     [],
   );
 
+  useLayoutEffect(() => {
+    const isDarkModePreffered = window.matchMedia(
+      '(prefers-color-scheme: dark)',
+    ).matches;
+
+    document.documentElement.setAttribute(
+      'data-bs-theme',
+      isDarkModePreffered ? 'dark' : 'light',
+    );
+  }, []);
+
   useEffect(() => {
     getUsers(query);
 
@@ -141,7 +153,7 @@ export const App: React.FC = () => {
 
   return (
     <>
-      <header className='navbar bg-light mb-4'>
+      <header className='navbar bg-primary-subtle mb-4'>
         <div className='container'>
           <div className='row flex-grow-1 gy-2'>
             <div className='col-12 col-md-6 col-lg-12 col-xl-2'>
@@ -209,7 +221,7 @@ export const App: React.FC = () => {
                 />
                 <button
                   aria-label='shuffle seed'
-                  className='btn btn-outline-secondary d-flex align-items-center'
+                  className='btn btn-outline-primary d-flex align-items-center'
                   type='button'
                   onClick={handleSeedShuffle}>
                   <Shuffle height={20} width={20} aria-hidden />
