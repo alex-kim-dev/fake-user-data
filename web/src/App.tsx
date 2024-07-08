@@ -5,7 +5,7 @@ import {
   useMemo,
   useState,
 } from 'react';
-import { Shuffle } from 'react-bootstrap-icons';
+import { Shuffle, ExclamationTriangleFill } from 'react-bootstrap-icons';
 import { CanceledError } from 'axios';
 import { debounce, random } from 'underscore';
 import { InView } from 'react-intersection-observer';
@@ -239,8 +239,18 @@ export const App: React.FC = () => {
         </div>
         <div className='d-flex flex-column align-items-center'>
           {error && (
-            <div className='alert alert-danger' role='alert'>
-              Couldn't load users, please try again.
+            <div
+              className='alert alert-danger d-flex align-items-center gap-2'
+              role='alert'>
+              <ExclamationTriangleFill className='flex-shrink-0' />
+              <div>Couldn't load users.</div>
+              <button
+                className='btn btn-primary'
+                onClick={() => {
+                  getUsers(query);
+                }}>
+                Retry
+              </button>
             </div>
           )}
           {isLoading && (
