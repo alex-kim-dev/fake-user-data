@@ -29,4 +29,4 @@ export enum Mistake {
   swapAdjacentChars,
 }
 
-export const UNIQUE_MISTAKES = Object.keys(Mistake).length / 2 - 1;
+export const UNIQUE_MISTAKES = Object.keys(Mistake).length / 2;
