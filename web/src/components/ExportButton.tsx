@@ -1,5 +1,6 @@
 import { type ReactNode, type MouseEventHandler, useState } from 'react';
 import { CanceledError } from 'axios';
+import cn from 'clsx';
 
 import type { Query } from '@fake-user-data/shared';
 import { api } from '~/api';
@@ -36,15 +37,19 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
     <button
       type='button'
       disabled={isLoading}
-      className={`btn btn-outline-${error ? 'danger' : 'primary'} d-flex align-items-center`}
+      className={cn('btn d-flex align-items-center position-relative', {
+        'btn-outline-primary': !error,
+        'btn-outline-danger': error,
+      })}
       onClick={handleExport}>
       {isLoading && (
-        <span
-          aria-hidden='true'
-          className='spinner-grow spinner-grow-sm me-2'
-        />
+        <span className='position-absolute top-50 start-50 translate-middle'>
+          <span aria-hidden='true' className='spinner-grow spinner-grow-sm' />
+        </span>
       )}
-      {error ? 'Retry' : children || 'Export'}
+      <span className={cn({ 'opacity-0': isLoading })}>
+        {error ? 'Retry' : children || 'Export'}
+      </span>
     </button>
   );
 };
