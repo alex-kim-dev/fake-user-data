@@ -16,7 +16,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({ users }) => {
           <th scope='col'>Phone number</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody className='table-group-divider'>
         {users.map((user, i) => (
           <tr key={user.id}>
             <th scope='row'>{i + 1}</th>

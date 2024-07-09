@@ -2,6 +2,11 @@ $form-track-range-bg: var(--bs-primary-border-subtle);
 
 @import '../node_modules/bootstrap/scss/bootstrap';
 
+td {
+  max-width: 200px;
+  overflow-wrap: break-word;
+}
+
 .controls {
   grid-template:
     'region-label region-input' auto
@@ -44,6 +49,10 @@ $form-track-range-bg: var(--bs-primary-border-subtle);
 }
 
 @include media-breakpoint-up(lg) {
+  td {
+    max-width: 300px;
+  }
+
   .controls {
     grid-template: none;
     grid-auto-flow: column;

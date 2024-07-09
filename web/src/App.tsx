@@ -17,6 +17,7 @@ import { InView } from 'react-intersection-observer';
 import { useMediaQuery } from '@uidotdev/usehooks';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
+import cn from 'clsx';
 
 import type { User, Query } from '@fake-user-data/shared';
 import {
@@ -262,7 +263,7 @@ export const App: React.FC = () => {
       </header>
 
       <main className='container-xl'>
-        <div className='overflow-auto row mb-3'>
+        <div className={cn('table-responsive mb-3', { row: !isLgScreen })}>
           {users.length > 0 && (
             <>
               <UsersTable users={users} />
