@@ -65,6 +65,7 @@ export const App: React.FC = () => {
   };
 
   const isLgScreen = useMediaQuery('(width >= 992px');
+  const isDarkModePreffered = useMediaQuery('(prefers-color-scheme: dark)');
 
   const getUsers = (query: Query, resetPage = true) => {
     setLoading(true);
@@ -95,15 +96,11 @@ export const App: React.FC = () => {
   );
 
   useLayoutEffect(() => {
-    const isDarkModePreffered = window.matchMedia(
-      '(prefers-color-scheme: dark)',
-    ).matches;
-
     document.documentElement.setAttribute(
       'data-bs-theme',
       isDarkModePreffered ? 'dark' : 'light',
     );
-  }, []);
+  }, [isDarkModePreffered]);
 
   useEffect(() => {
     getUsers(query);
@@ -117,6 +114,7 @@ export const App: React.FC = () => {
   const handleLocaleChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
     const newLocale = Locale[event.currentTarget.value as Locale];
     const newQuery = { ...query, locale: newLocale, page: PAGE.DEFAULT };
+
     setQuery(newQuery);
     getUsersWithDebounce(newQuery);
   };
