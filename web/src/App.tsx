@@ -76,7 +76,10 @@ export const App: React.FC = () => {
         setUsers((prevUsers) =>
           resetPage ? data.users : [...prevUsers, ...data.users],
         );
-        if (resetPage) setSearchParams(data.query);
+        if (resetPage) {
+          setSearchParams(data.query);
+          window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        }
         setLoading(false);
       })
       .catch((err: unknown) => {
@@ -161,7 +164,7 @@ export const App: React.FC = () => {
   };
 
   const controls = (
-    <div className='controls d-grid align-items-center gap-3'>
+    <div className='controls d-grid align-items-center gap-2'>
       <label className='col-form-label region-label' htmlFor='region'>
         Region:
       </label>
@@ -235,7 +238,7 @@ export const App: React.FC = () => {
 
   return (
     <>
-      <header className='navbar bg-primary-subtle mb-4'>
+      <header className='navbar sticky-top bg-primary-subtle mb-4'>
         <div className='container-xl d-flex gap-2 gap-sm-3'>
           <div className='navbar-brand flex-grow-1'>Fake user data</div>
 
@@ -259,6 +262,7 @@ export const App: React.FC = () => {
           <ExportButton query={query}>Export</ExportButton>
         </div>
       </header>
+
       <main className='container-xl'>
         <div className='overflow-auto row mb-3'>
           {users.length > 0 && (
