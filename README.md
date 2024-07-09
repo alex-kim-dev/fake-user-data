@@ -1,8 +1,20 @@
 # Fake user data generator
 
-A client-server web app that generates user data with mistakes based on a given seed.
+A client-server web app that generates user data with human-like mistakes based on the given seed.
 
-https://github.com/alex-kim-dev/fake-user-data/assets/45559664/8657ff71-3949-4098-ac14-21b4c53b3cb0
+## Built with
+
+- Typescript, Zod
+- React, Axios, Bootstrap
+- Express, Faker.js, SeedRandom
+
+Hosted on Vercel and Render.
+
+## I've learned how to
+
+- develop back-end apps with Express.js
+- generate fake user data based on a seed
+- organize a monorepo with pnpm workspaces
 
 ## Requirements
 
@@ -23,7 +35,7 @@ https://github.com/alex-kim-dev/fake-user-data/assets/45559664/8657ff71-3949-409
   - [x] delete character at a random position
   - [x] add a random character at a random position
   - [x] swap adjacent characters
-  - [ ] noisy user data shouldn't be too long or too short
+- [x] noisy user data shouldn't be too long or too short
 - [x] generate data on a server
 - [x] avoid full user data duplication in ~10_000_000 records
 - [x] optional: add "Export to CSV" button (generate the number of pages which is displayed to a user currently)
